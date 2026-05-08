@@ -1,14 +1,14 @@
+````md
 <div align="center">
 
-# 🌊 Realtime Weather Waves
+# Realtime Weather Waves
 
-### Cinematic real-time ocean simulation powered by live weather & marine data
+### Cinematic real-time ocean simulation powered by live weather and marine data
 
 <br>
 
-<img src="./public/day.png" width="30%" />
-<img src="./public/sunset.png" width="30%" />
-<img src="./public/night.png" width="30%" />
+<img src="./public/day.png" width="44%" />
+<img src="./public/night.png" width="44%" />
 
 <br><br>
 
@@ -16,13 +16,13 @@
 
 ---
 
-## ✨ Features
+## Features
 
 <table align="center">
 <tr>
 <td align="center" width="33%">
 
-### 🌦 Live Weather
+### Live Weather
 
 Real-time weather conditions using the Open-Meteo Forecast API.
 
@@ -30,17 +30,17 @@ Real-time weather conditions using the Open-Meteo Forecast API.
 
 <td align="center" width="33%">
 
-### 🌊 Marine Data
+### Marine Data
 
-Dynamic wave simulation powered by live marine conditions.
+Dynamic ocean simulation powered by real marine conditions.
 
 </td>
 
 <td align="center" width="33%">
 
-### 🌙 Day & Night
+### Day & Night Cycle
 
-Automatic sunrise, sunset and nighttime transitions.
+Automatic sunrise, daylight, sunset and night transitions.
 
 </td>
 </tr>
@@ -48,7 +48,7 @@ Automatic sunrise, sunset and nighttime transitions.
 <tr>
 <td align="center">
 
-### 💨 Wind System
+### Wind Simulation
 
 Animated wind visualization reacting to live wind direction and speed.
 
@@ -56,17 +56,17 @@ Animated wind visualization reacting to live wind direction and speed.
 
 <td align="center">
 
-### 🧭 Interactive Dashboard
+### Interactive Dashboard
 
-Search locations worldwide with real-time environmental data.
+Worldwide location search with real-time environmental data.
 
 </td>
 
 <td align="center">
 
-### 🎬 Cinematic Atmosphere
+### Atmospheric Rendering
 
-Fog, moonlight, stars and dynamic environmental rendering.
+Fog, moonlight, stars and cinematic environmental effects.
 
 </td>
 </tr>
@@ -74,17 +74,17 @@ Fog, moonlight, stars and dynamic environmental rendering.
 
 ---
 
-## 🛰 APIs
+## APIs
 
 | API | Purpose |
 |---|---|
-| Open-Meteo Forecast API | Temperature, wind, sunrise/sunset |
-| Open-Meteo Marine API | Wave height, wave direction, swell |
-| Open-Meteo Geocoding API | Location search & coordinates |
+| Open-Meteo Forecast API | Temperature, wind, sunrise and sunset |
+| Open-Meteo Marine API | Wave height, wave direction and swell |
+| Open-Meteo Geocoding API | Location search and coordinates |
 
 ---
 
-## ⚙ Technologies
+## Technologies
 
 <div align="center">
 
@@ -94,7 +94,7 @@ Fog, moonlight, stars and dynamic environmental rendering.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```txt
 src/
@@ -105,3 +105,45 @@ src/
 ├── main.js
 ├── style.css
 └── index.html
+```
+
+---
+
+## Installation
+
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## Recommended Test Locations
+
+| Environment | Locations |
+|---|---|
+| Storm & Large Waves | Tórshavn, Reykjavik, Nuuk |
+| Sunset Atmosphere | London, Amsterdam, Brussels |
+| Bright Daylight | Dubai, Singapore, Tokyo |
+| Adriatic Sea | Rijeka, Split, Silba |
+
+---
+
+## Planned Features
+
+- Rain particle system
+- Lightning effects
+- Ocean foam simulation
+- Volumetric clouds
+- Advanced Gerstner waves
+- Dynamic storms
+- SSR reflections
+
+---
+
+<div align="center">
+
+MIT License
+
+</div>
+````
