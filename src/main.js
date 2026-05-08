@@ -2,7 +2,9 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Water } from 'three/examples/jsm/objects/Water.js'
 import { Sky } from 'three/examples/jsm/objects/Sky.js'
-import { getCurrentWeather } from './weather/weatherService.js'
+import {
+  getCurrentWeather
+} from './weather/weatherService.js'
 import {
   mapWindToSeaState,
   applySeaStateToWater
@@ -42,10 +44,9 @@ controls.maxPolarAngle = Math.PI * 0.48
 controls.update()
 
 const sun = new THREE.Vector3()
+const textureLoader = new THREE.TextureLoader()
 
 const waterGeometry = new THREE.PlaneGeometry(10000, 10000)
-
-const textureLoader = new THREE.TextureLoader()
 
 const waterNormals = textureLoader.load(
   'https://threejs.org/examples/textures/waternormals.jpg',
@@ -62,7 +63,7 @@ const water = new Water(waterGeometry, {
   sunColor: 0xffffff,
   waterColor: 0x00324d,
   distortionScale: 3.7,
-  fog: false
+  fog: true
 })
 
 water.rotation.x = -Math.PI / 2
@@ -165,10 +166,15 @@ nightGroup.add(stars)
 nightGroup.visible = false
 
 const pmremGenerator = new THREE.PMREMGenerator(renderer)
+let environmentTarget = null
 
 function updateEnvironment() {
-  const renderTarget = pmremGenerator.fromScene(sky)
-  scene.environment = renderTarget.texture
+  if (environmentTarget) {
+    environmentTarget.dispose()
+  }
+
+  environmentTarget = pmremGenerator.fromScene(sky)
+  scene.environment = environmentTarget.texture
 }
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
@@ -282,29 +288,41 @@ const weatherBox = document.createElement('div')
 weatherBox.className = 'weather-box'
 weatherBox.innerHTML = `
   <h2>Weather & Waves</h2>
+
+  <div class="weather-search">
+    <input id="city-input" type="text" placeholder="Upiši grad, npr. Split, Silba, Washington..." />
+    <button id="city-search-btn">Prikaži</button>
+  </div>
+
   <p>Učitavanje prognoze...</p>
 `
 document.body.appendChild(weatherBox)
 
+let selectedPlace = 'Rijeka'
 let currentSeaState = null
 let currentWeatherData = null
 let currentDayPhase = 'day'
+let isWeatherLoading = false
 
-function getLiveRijekaTime() {
+function getLivePlaceTime() {
   return new Date().toLocaleTimeString('hr-HR', {
-    timeZone: 'Europe/Zagreb',
+    timeZone: currentWeatherData?.timezone || 'Europe/Zagreb',
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit'
   })
 }
 
-function getLiveRijekaDate() {
-  return new Date()
+function getLivePlaceDate() {
+  if (!currentWeatherData?.currentTime) {
+    return new Date()
+  }
+
+  return new Date(currentWeatherData.currentTime)
 }
 
 function getDayPhase(weather) {
-  const now = getLiveRijekaDate()
+  const now = getLivePlaceDate()
   const sunrise = new Date(weather.sunrise)
   const sunset = new Date(weather.sunset)
 
@@ -323,7 +341,7 @@ function getDayPhase(weather) {
 }
 
 function getRealSunElevation(weather) {
-  const now = getLiveRijekaDate()
+  const now = getLivePlaceDate()
   const sunrise = new Date(weather.sunrise)
   const sunset = new Date(weather.sunset)
 
@@ -347,7 +365,6 @@ function applyDayPhase(phase, weather) {
       elevation: -8,
       azimuth: 180,
       exposure: 0.55,
-      waterColor: 0x00203a,
       turbidity: 1.4,
       rayleigh: 0.18,
       mie: 0.001,
@@ -360,7 +377,6 @@ function applyDayPhase(phase, weather) {
       elevation: 5,
       azimuth: 115,
       exposure: 0.78,
-      waterColor: 0x12384a,
       turbidity: 9,
       rayleigh: 1.8,
       mie: 0.006,
@@ -373,7 +389,6 @@ function applyDayPhase(phase, weather) {
       elevation: 22,
       azimuth: 180,
       exposure: 1.08,
-      waterColor: 0x00324d,
       turbidity: 6,
       rayleigh: 1.8,
       mie: 0.004,
@@ -386,7 +401,6 @@ function applyDayPhase(phase, weather) {
       elevation: 4,
       azimuth: 245,
       exposure: 0.65,
-      waterColor: 0x102638,
       turbidity: 10,
       rayleigh: 2.6,
       mie: 0.008,
@@ -408,10 +422,6 @@ function applyDayPhase(phase, weather) {
   const realElevation = weather ? getRealSunElevation(weather) : s.elevation
   setSunPosition(realElevation, s.azimuth)
 
-  if (water.material.uniforms.waterColor) {
-    water.material.uniforms.waterColor.value.setHex(s.waterColor)
-  }
-
   directionalLight.intensity = s.light
   moonLight.intensity = s.moonLight
   ambientNightLight.intensity = s.ambientMoon
@@ -430,7 +440,6 @@ function applyDayPhase(phase, weather) {
     starMaterial.opacity = 0.95
     moonGlow.material.opacity = 0.22
     moonHalo.material.opacity = 0.08
-    scene.fog = new THREE.FogExp2(0x020817, 0.005)
   } else {
     nightGroup.visible = false
     moon.visible = false
@@ -441,10 +450,6 @@ function applyDayPhase(phase, weather) {
     moonGlow.material.opacity = 0
     moonHalo.material.opacity = 0
     moonFillLight.intensity = 0
-
-    scene.fog = phase === 'sunrise' || phase === 'sunset'
-      ? new THREE.FogExp2(0x33251f, 0.004)
-      : null
   }
 }
 
@@ -465,12 +470,214 @@ function formatTime(value) {
   })
 }
 
+function setupSearchEvents() {
+  const cityInput = document.querySelector('#city-input')
+  const citySearchBtn = document.querySelector('#city-search-btn')
+
+  if (!cityInput || !citySearchBtn) return
+
+  citySearchBtn.addEventListener('click', () => {
+    const value = cityInput.value.trim()
+
+    if (!value || isWeatherLoading) return
+
+    selectedPlace = value
+    loadWeatherAndApplyWaves()
+  })
+
+  cityInput.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return
+
+    const value = cityInput.value.trim()
+
+    if (!value || isWeatherLoading) return
+
+    selectedPlace = value
+    loadWeatherAndApplyWaves()
+  })
+}
+
+function updateWeatherBox(html, options = {}) {
+  const { loading = false } = options
+
+  weatherBox.classList.add('is-changing')
+
+  setTimeout(() => {
+    weatherBox.innerHTML = html
+    setupSearchEvents()
+
+    weatherBox.classList.toggle('is-loading', loading)
+
+    requestAnimationFrame(() => {
+      weatherBox.classList.remove('is-changing')
+    })
+  }, 220)
+}
+
+function getLoadingPanelHtml(place) {
+  return `
+    <h2>Weather & Waves</h2>
+
+    <div class="weather-search">
+      <input id="city-input" type="text" placeholder="Upiši grad, npr. Split, Silba, Washington..." value="${place}" />
+      <button id="city-search-btn">Prikaži</button>
+    </div>
+
+    <div class="panel-loading-content">
+      <div class="loading-orb"></div>
+      <p>Učitavanje prognoze za <strong>${place}</strong>...</p>
+    </div>
+  `
+}
+
+function getWeatherPanelHtml(weather, seaState, dayPhase) {
+  return `
+    <h2>${weather.place}, ${weather.country}</h2>
+
+    <div class="weather-search">
+      <input id="city-input" type="text" placeholder="Upiši grad, npr. Split, Silba, Washington..." value="${weather.place}" />
+      <button id="city-search-btn">Prikaži</button>
+    </div>
+
+    <div class="weather-row">
+      <span>Trenutno vrijeme</span>
+      <strong id="live-time">${getLivePlaceTime()}</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Geografska širina</span>
+      <strong>${weather.latitude.toFixed(4)}°</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Geografska dužina</span>
+      <strong>${weather.longitude.toFixed(4)}°</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Temperatura</span>
+      <strong>${weather.temperature} °C</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Brzina vjetra</span>
+      <strong>${weather.windSpeed} km/h</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Smjer vjetra</span>
+      <strong>${weather.windDirection}° - ${weather.windDirectionName}</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Stvarna visina valova</span>
+      <strong>${weather.waveHeight !== null ? `${Number(weather.waveHeight).toFixed(1)} m` : 'Nema marine podataka'}</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Smjer valova</span>
+      <strong>${weather.waveDirection !== null ? `${weather.waveDirection}° - ${weather.waveDirectionName}` : '-'}</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Period valova</span>
+      <strong>${weather.wavePeriod !== null ? `${Number(weather.wavePeriod).toFixed(1)} s` : '-'}</strong>
+    </div>
+
+    <div class="compass-wrap">
+      <div class="compass-title">Kompas vjetra</div>
+
+      <div class="compass">
+        <div class="compass-ring"></div>
+
+        <span class="compass-label compass-n">S</span>
+        <span class="compass-label compass-e">I</span>
+        <span class="compass-label compass-s">J</span>
+        <span class="compass-label compass-w">Z</span>
+
+        <span class="compass-label compass-ne">SI</span>
+        <span class="compass-label compass-se">JI</span>
+        <span class="compass-label compass-sw">JZ</span>
+        <span class="compass-label compass-nw">SZ</span>
+
+        <div class="compass-needle" style="transform: translate(-50%, -50%) rotate(${weather.windDirection + 180}deg);">
+          <div class="needle-head"></div>
+          <div class="needle-tail"></div>
+        </div>
+
+        <div class="compass-center"></div>
+      </div>
+    </div>
+
+    <div class="weather-row">
+      <span>Doba dana</span>
+      <strong id="day-phase-label">${getPhaseLabel(dayPhase)}</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Izlazak</span>
+      <strong>${formatTime(weather.sunrise)}</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Zalazak</span>
+      <strong>${formatTime(weather.sunset)}</strong>
+    </div>
+
+    <div class="sea-state ${seaState.className}">
+      <div class="wave-icon">🌊</div>
+      <div>
+        <h3>${seaState.label}</h3>
+        <p>${seaState.description}</p>
+      </div>
+    </div>
+
+    <div class="bar">
+      <div style="width:${seaState.intensity * 100}%"></div>
+    </div>
+
+    <div class="weather-row">
+      <span>Prikazana visina valova</span>
+      <strong>${seaState.visibleWaveHeight} m</strong>
+    </div>
+
+    <div class="weather-row">
+      <span>Reakcija mora</span>
+      <strong>${Math.round(seaState.intensity * 100)}%</strong>
+    </div>
+  `
+}
+
+function getErrorPanelHtml(message) {
+  return `
+    <h2>Weather & Waves</h2>
+
+    <div class="weather-search">
+      <input id="city-input" type="text" placeholder="Upiši grad, npr. Split, Silba, Washington..." value="${selectedPlace}" />
+      <button id="city-search-btn">Prikaži</button>
+    </div>
+
+    <p>${message || 'Nije moguće dohvatiti prognozu.'}</p>
+  `
+}
+
 async function loadWeatherAndApplyWaves() {
+  if (isWeatherLoading) return
+
+  isWeatherLoading = true
+  updateWeatherBox(getLoadingPanelHtml(selectedPlace), { loading: true })
+
   try {
-    const weather = await getCurrentWeather('rijeka')
+    const weather = await getCurrentWeather(selectedPlace)
     currentWeatherData = weather
 
-    const seaState = mapWindToSeaState(weather.windSpeed)
+    selectedPlace = weather.place
+
+    const seaState = mapWindToSeaState(
+      weather.windSpeed,
+      weather.waveHeight
+    )
+
     const dayPhase = getDayPhase(weather)
 
     applyDayPhase(dayPhase, weather)
@@ -479,89 +686,23 @@ async function loadWeatherAndApplyWaves() {
     seaState.windDirection = weather.windDirection
     currentSeaState = seaState
 
-    applySeaStateToWater(water, seaState)
-    updateWaterFromSeaState(seaState)
+    applySeaStateToWater(water, seaState, scene)
     updateWindDirection(weather.windDirection)
 
-    weatherBox.innerHTML = `
-      <h2>${weather.place}</h2>
-
-      <div class="weather-row">
-        <span>Trenutno vrijeme</span>
-        <strong id="live-time">${getLiveRijekaTime()}</strong>
-      </div>
-
-      <div class="weather-row">
-        <span>Temperatura</span>
-        <strong>${weather.temperature} °C</strong>
-      </div>
-
-      <div class="weather-row">
-        <span>Brzina vjetra</span>
-        <strong>${weather.windSpeed} km/h</strong>
-      </div>
-
-      <div class="weather-row">
-        <span>Smjer vjetra</span>
-        <strong>${weather.windDirection}°</strong>
-      </div>
-
-      <div class="weather-row">
-        <span>Doba dana</span>
-        <strong id="day-phase-label">${getPhaseLabel(dayPhase)}</strong>
-      </div>
-
-      <div class="weather-row">
-        <span>Izlazak</span>
-        <strong>${formatTime(weather.sunrise)}</strong>
-      </div>
-
-      <div class="weather-row">
-        <span>Zalazak</span>
-        <strong>${formatTime(weather.sunset)}</strong>
-      </div>
-
-      <div class="sea-state ${seaState.className}">
-        <div class="wave-icon">🌊</div>
-        <div>
-          <h3>${seaState.label}</h3>
-          <p>${seaState.description}</p>
-        </div>
-      </div>
-
-      <div class="bar">
-        <div style="width:${seaState.intensity * 100}%"></div>
-      </div>
-
-      <div class="weather-row">
-        <span>Visina valova</span>
-        <strong>${seaState.visibleWaveHeight} m</strong>
-      </div>
-
-      <div class="weather-row">
-        <span>Reakcija mora</span>
-        <strong>${Math.round(seaState.intensity * 100)}%</strong>
-      </div>
-    `
+    setTimeout(() => {
+      updateWeatherBox(getWeatherPanelHtml(weather, seaState, dayPhase))
+    }, 260)
   } catch (error) {
     console.error(error)
 
-    weatherBox.innerHTML = `
-      <h2>Weather & Waves</h2>
-      <p>Nije moguće dohvatiti prognozu.</p>
-    `
-  }
-}
-
-function updateWaterFromSeaState(seaState) {
-  if (water.material.uniforms.distortionScale) {
-    water.material.uniforms.distortionScale.value =
-      2.2 + seaState.choppiness * 4.5
-  }
-
-  if (water.material.uniforms.size) {
-    water.material.uniforms.size.value =
-      0.8 + seaState.intensity * 2.5
+    setTimeout(() => {
+      updateWeatherBox(getErrorPanelHtml(error.message))
+    }, 260)
+  } finally {
+    setTimeout(() => {
+      weatherBox.classList.remove('is-loading')
+      isWeatherLoading = false
+    }, 520)
   }
 }
 
@@ -574,7 +715,7 @@ function updateLiveTimeAndPhase() {
   const liveTime = document.querySelector('#live-time')
 
   if (liveTime) {
-    liveTime.textContent = getLiveRijekaTime()
+    liveTime.textContent = getLivePlaceTime()
   }
 
   if (!currentWeatherData) return
@@ -601,7 +742,11 @@ setInterval(updateLiveTimeAndPhase, 1000)
 let lastTime = performance.now()
 
 function animateWater(delta) {
-  const speed = water.userData.waveSpeed || 0.65
+  const speed =
+    currentSeaState?.waveAnimationSpeed ||
+    water.userData.waveAnimationSpeed ||
+    water.userData.waveSpeed ||
+    0.65
 
   if (water.material.uniforms.time) {
     water.material.uniforms.time.value += delta * speed
@@ -617,7 +762,9 @@ function animateWind() {
 
   windGroup.children.forEach((ribbon) => {
     ribbon.material.opacity =
-      0.08 + strength * 0.32 + Math.sin(time * 2 + ribbon.userData.floatOffset) * 0.04
+      0.08 +
+      strength * 0.32 +
+      Math.sin(time * 2 + ribbon.userData.floatOffset) * 0.04
 
     ribbon.position.x += ribbon.userData.speed * realWindFactor * 24
 

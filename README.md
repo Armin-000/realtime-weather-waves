@@ -1,86 +1,173 @@
 # Realtime Weather Waves
 
-Realtime Weather Waves is an interactive real-time 3D ocean simulation built with Three.js. The application dynamically reacts to live weather conditions by adjusting ocean waves, atmospheric lighting, wind behavior, and environmental transitions based on real meteorological data.
+<p align="center">
+  Real-time cinematic ocean simulation powered by live weather and marine data.
+</p>
 
-The project integrates live weather information from the Open-Meteo API and visualizes changing environmental conditions through a fully animated ocean scene.
+---
+
+## Preview
+
+### Night Environment
+![Night Preview](./weather-waves/public/day.png)
+
+### Day Environment
+![Day Preview](./weather-waves/public/night.png)
 
 ---
 
 ## Overview
 
-The application simulates a responsive marine environment where multiple visual systems adapt in real time according to weather data for Rijeka, Croatia.
+Realtime Weather Waves is an advanced real-time 3D ocean simulation built with Three.js and WebGL.
 
-The environment dynamically updates:
+The application dynamically reacts to live meteorological and marine conditions by adjusting:
 - ocean wave intensity
-- wind movement and direction
-- atmospheric conditions
-- sunrise and sunset transitions
-- night sky rendering
-- moonlight illumination
-- real-time local time
+- atmospheric lighting
+- day/night transitions
+- wind direction and movement
+- water distortion
+- fog density
+- environmental colors
 
-The project is designed as a modern Three.js visualization focused on realism, atmosphere, and weather-driven environmental behavior.
+The system combines live weather data with cinematic rendering techniques to create an immersive ocean environment directly in the browser.
 
 ---
 
 ## Features
 
 ### Real-Time Weather Integration
-
-Weather data is fetched directly from the Open-Meteo API, including:
+Live environmental data is fetched from the Open-Meteo APIs:
 - temperature
 - wind speed
 - wind direction
-- sunrise and sunset times
-- day and night state
+- sunrise & sunset
+- timezone
+- marine wave data
 
-The ocean environment updates automatically according to live conditions.
+---
 
 ### Dynamic Ocean Simulation
+Ocean behavior changes in real time depending on:
+- wind intensity
+- wave height
+- marine conditions
 
-Wave behavior changes depending on the current wind intensity:
-- calm sea during weak winds
-- stronger and faster waves during heavy winds
-- dynamic surface distortion and movement
+The water system dynamically adjusts:
+- wave speed
+- wave size
+- distortion scale
+- fog density
+- ocean color
 
-### Adaptive Day and Night Cycle
+---
 
-The application automatically transitions between:
-- daytime
+### Adaptive Day & Night Cycle
+The environment automatically transitions between:
 - sunrise
+- daytime
 - sunset
 - nighttime
 
-Lighting, fog, atmospheric scattering, water colors, and sky appearance adapt dynamically.
+Lighting and atmosphere dynamically react to real-world solar conditions.
 
-### Night Environment
+---
 
-During nighttime conditions the scene renders:
-- a realistic moon with texture mapping
-- moon glow and atmospheric halo
+### Cinematic Night Rendering
+Night scenes include:
+- realistic moon rendering
+- atmospheric moon glow
 - animated stars
-- moonlight reflections and illumination over the ocean
+- moonlight reflections
+- dark ocean atmosphere
+
+---
+
+### Marine Data Visualization
+The application visualizes:
+- real wave height
+- wave direction
+- wave period
+- wind wave data
+- swell wave data
+
+using the Open-Meteo Marine API.
+
+---
 
 ### Wind Visualization System
-
-The wind system visualizes atmospheric movement using animated translucent wind streaks that react to:
+Animated wind ribbons simulate atmospheric movement based on:
 - wind speed
 - wind direction
-- environmental intensity
+- weather intensity
 
-### Real-Time Clock
+---
 
-The interface continuously displays the current local time for Rijeka, Croatia without requiring page refreshes.
+### Interactive Weather Dashboard
+Users can search any location worldwide:
+- Rijeka
+- Split
+- Silba
+- Tórshavn
+- Reykjavik
+- Washington
+- etc.
+
+The dashboard displays:
+- local time
+- coordinates
+- weather conditions
+- marine conditions
+- compass direction
+- ocean state
 
 ---
 
 ## Technologies
 
 - Three.js
+- WebGL
 - JavaScript
 - Vite
 - Open-Meteo API
-- WebGL
+- Open-Meteo Marine API
+
+---
+
+## APIs
+
+### Open-Meteo Forecast API
+Used for:
+- temperature
+- wind
+- sunrise/sunset
+- timezone
+- day/night state
+
+```txt
+https://api.open-meteo.com/v1/forecast
+```
+
+### Open-Meteo Marine API
+Used for:
+- wave height
+- wave direction
+- wave period
+- swell data
+- marine conditions
+
+```txt
+https://marine-api.open-meteo.com/v1/marine
+```
+
+### Open-Meteo Geocoding API
+Used for:
+- location search
+- coordinates
+- timezone detection
+
+```txt
+https://geocoding-api.open-meteo.com/v1/search
+```
 
 ---
 
@@ -98,3 +185,74 @@ src/
 ├── main.js
 ├── style.css
 └── index.html
+```
+
+---
+
+## Installation
+
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## Recommended Test Locations
+
+### Storm & Large Waves
+```txt
+Tórshavn
+Reykjavik
+Nuuk
+Ushuaia
+Cape Town
+```
+
+### Adriatic Sea
+```txt
+Rijeka
+Split
+Silba
+Zadar
+Dubrovnik
+```
+
+---
+
+## Notes
+
+The current ocean implementation uses the built-in Three.js Water shader system.
+
+Wave height from the Marine API is used to dynamically enhance:
+- distortion
+- wave movement
+- atmosphere
+- environmental intensity
+
+The project currently focuses on:
+- cinematic realism
+- atmospheric rendering
+- responsive environmental simulation
+
+rather than physically simulated FFT or Gerstner ocean waves.
+
+---
+
+## Future Improvements
+
+Planned upgrades:
+- rain particle system
+- lightning effects
+- volumetric clouds
+- ocean foam
+- Gerstner wave simulation
+- dynamic storms
+- SSR reflections
+- advanced ocean shaders
+
+---
+
+## License
+
+MIT License
