@@ -1,4 +1,4 @@
-````md
+
 <div align="center">
 
 # Realtime Weather Waves
@@ -146,4 +146,3 @@ npm run dev
 MIT License
 
 </div>
-````
