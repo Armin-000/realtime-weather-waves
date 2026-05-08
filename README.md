@@ -1,4 +1,3 @@
-````md
 <div align="center">
 
 # 🌊 Realtime Weather Waves
@@ -106,44 +105,3 @@ src/
 ├── main.js
 ├── style.css
 └── index.html
-````
-
----
-
-## 🚀 Installation
-
-```bash
-npm install
-npm run dev
-```
-
----
-
-## 🌍 Recommended Test Locations
-
-| Environment            | Locations                   |
-| ---------------------- | --------------------------- |
-| 🌊 Storm & Large Waves | Tórshavn, Reykjavik, Nuuk   |
-| 🌅 Sunset Atmosphere   | London, Amsterdam, Brussels |
-| ☀ Bright Daylight      | Dubai, Singapore, Tokyo     |
-| 🇭🇷 Adriatic Sea      | Rijeka, Split, Silba        |
-
----
-
-## 🔮 Planned Features
-
-* Rain & lightning system
-* Ocean foam simulation
-* Volumetric clouds
-* Advanced Gerstner waves
-* Dynamic storms
-* SSR reflections
-
----
-
-<div align="center">
-
-### MIT License
-
-</div>
-```
