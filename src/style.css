@@ -1,3 +1,15 @@
+:root {
+  --accent: #35c9ff;
+  --accent-lt: #73d8ff;
+  --bg-panel: rgba(4, 12, 18, 0.72);
+  --border: rgba(255, 255, 255, 0.08);
+  --text-muted: rgba(255, 255, 255, 0.68);
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 22px;
+}
+
 body {
   margin: 0;
   overflow: hidden;
@@ -15,28 +27,44 @@ body {
   top: 24px;
   left: 24px;
   z-index: 10;
+
   width: 310px;
   max-height: calc(100vh - 48px);
+
   overflow-y: auto;
   overflow-x: hidden;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
   padding: 22px;
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
+
   color: white;
-  background: rgba(4, 12, 18, 0.72);
+  background: var(--bg-panel);
+
   backdrop-filter: blur(18px);
+
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
+
   transition:
     opacity 0.25s ease,
     transform 0.25s ease,
     filter 0.25s ease,
-    background 0.35s ease;
+    background 0.35s ease,
+    max-height 0.35s ease;
 }
 
 .weather-box.is-changing {
   opacity: 0.35;
   transform: translateY(8px) scale(0.985);
   filter: blur(4px);
+}
+
+.weather-box.is-collapsed {
+  max-height: 80px;
+  padding-bottom: 14px;
 }
 
 .weather-box::-webkit-scrollbar {
@@ -54,6 +82,66 @@ body {
   letter-spacing: 0.5px;
 }
 
+.weather-panel-header {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  padding: 0 0 14px;
+  margin: 0 0 14px;
+
+  background: transparent;
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-align: left;
+}
+
+.weather-panel-content {
+  overflow: hidden;
+
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.weather-box:not(.is-collapsed) .weather-panel-content {
+  max-height: 1400px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.weather-box.is-collapsed .weather-panel-content {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+body[data-phase='night'] .weather-box {
+  background: rgba(2, 7, 18, 0.82);
+}
+
+body[data-phase='sunrise'] .weather-box,
+body[data-phase='sunset'] .weather-box {
+  background: rgba(35, 22, 18, 0.72);
+}
+
+body[data-phase='day'] .weather-box {
+  background: rgba(4, 12, 18, 0.64);
+}
+
 .weather-search {
   display: flex;
   gap: 8px;
@@ -63,11 +151,15 @@ body {
 .weather-search input {
   flex: 1;
   min-width: 0;
+
   border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-sm);
+
+  padding: 10px 12px;
+
   background: rgba(0, 20, 40, 0.7);
   color: white;
-  border-radius: 12px;
-  padding: 10px 12px;
+
   outline: none;
 }
 
@@ -77,12 +169,16 @@ body {
 
 .weather-search button {
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
+
   padding: 10px 14px;
-  background: #35c9ff;
+
+  background: var(--accent);
   color: #001018;
+
   font-weight: 700;
   cursor: pointer;
+
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -91,15 +187,17 @@ body {
 
 .weather-search button:hover {
   transform: translateY(-1px);
+  background: var(--accent-lt);
   box-shadow: 0 8px 22px rgba(53, 201, 255, 0.28);
-  background: #73d8ff;
 }
 
 .panel-loading-content {
   display: grid;
   place-items: center;
+
   gap: 12px;
   padding: 22px 0;
+
   text-align: center;
 }
 
@@ -111,14 +209,18 @@ body {
 .loading-orb {
   width: 38px;
   height: 38px;
+
   border-radius: 50%;
+
   border: 3px solid rgba(115, 216, 255, 0.2);
-  border-top-color: #73d8ff;
-  animation: weatherSpin 0.9s linear infinite;
+  border-top-color: var(--accent-lt);
+
+  animation: spin 0.9s linear infinite;
+
   box-shadow: 0 0 20px rgba(115, 216, 255, 0.35);
 }
 
-@keyframes weatherSpin {
+@keyframes spin {
   to {
     transform: rotate(360deg);
   }
@@ -128,28 +230,29 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 14px;
   margin: 11px 0;
-  color: rgba(255, 255, 255, 0.75);
-}
 
-.weather-row span {
+  color: var(--text-muted);
   font-size: 14px;
 }
 
 .weather-row strong {
-  color: #35c9ff;
+  color: var(--accent);
   text-align: right;
-  font-size: 14px;
 }
 
 .sea-state {
   display: flex;
   gap: 14px;
   align-items: center;
+
   margin: 22px 0 14px;
   padding: 16px;
-  border-radius: 18px;
+
+  border-radius: var(--radius-md);
+
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -166,7 +269,7 @@ body {
   margin: 0;
   line-height: 1.4;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.68);
+  color: var(--text-muted);
 }
 
 .sea-state.calm h3 {
@@ -188,30 +291,29 @@ body {
 .bar {
   width: 100%;
   height: 9px;
+
   overflow: hidden;
-  border-radius: 99px;
-  background: rgba(255, 255, 255, 0.08);
+
+  border-radius: 999px;
+
+  background: var(--border);
+
   margin-bottom: 18px;
 }
 
 .bar div {
   height: 100%;
-  border-radius: 99px;
-  background: linear-gradient(90deg, #35c9ff, #ff9f43, #ff4d4d);
+
+  border-radius: 999px;
+
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    #ff9f43,
+    #ff4d4d
+  );
+
   transition: width 0.45s ease;
-}
-
-body[data-phase='night'] .weather-box {
-  background: rgba(2, 7, 18, 0.82);
-}
-
-body[data-phase='sunrise'] .weather-box,
-body[data-phase='sunset'] .weather-box {
-  background: rgba(35, 22, 18, 0.72);
-}
-
-body[data-phase='day'] .weather-box {
-  background: rgba(4, 12, 18, 0.64);
 }
 
 .compass-wrap {
@@ -223,19 +325,29 @@ body[data-phase='day'] .weather-box {
 
 .compass-title {
   font-size: 0.78rem;
+
   text-transform: uppercase;
   letter-spacing: 0.12em;
+
   color: rgba(255, 255, 255, 0.65);
+
   margin-bottom: 10px;
 }
 
 .compass {
   position: relative;
+
   width: 150px;
   height: 150px;
+
   border-radius: 50%;
+
   background:
-    radial-gradient(circle at center, rgba(80, 180, 255, 0.2), rgba(0, 18, 36, 0.86) 64%),
+    radial-gradient(
+      circle at center,
+      rgba(80, 180, 255, 0.2),
+      rgba(0, 18, 36, 0.86) 64%
+    ),
     conic-gradient(
       from 0deg,
       rgba(255,255,255,0.22) 0deg,
@@ -264,7 +376,9 @@ body[data-phase='day'] .weather-box {
       transparent 318deg,
       transparent 360deg
     );
+
   border: 1px solid rgba(120, 220, 255, 0.45);
+
   box-shadow:
     inset 0 0 28px rgba(40, 200, 255, 0.16),
     0 0 26px rgba(56, 200, 240, 0.22);
@@ -273,43 +387,55 @@ body[data-phase='day'] .weather-box {
 .compass-ring {
   position: absolute;
   inset: 10px;
+
   border-radius: 50%;
+
   border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .compass::before {
   content: '';
+
   position: absolute;
   inset: 22px;
+
   border-radius: 50%;
+
   border: 1px dashed rgba(255, 255, 255, 0.13);
 }
 
 .compass-label {
   position: absolute;
+
   color: rgba(255, 255, 255, 0.86);
+
   font-size: 0.72rem;
   font-weight: 800;
+
   line-height: 1;
+
   transform: translate(-50%, -50%);
+
   pointer-events: none;
 }
 
 .compass-n {
   left: 50%;
   top: 9%;
-  color: #ff5c5c;
-  font-size: 0.9rem;
-}
 
-.compass-e {
-  left: 91%;
-  top: 50%;
+  color: #ff5c5c;
+
+  font-size: 0.9rem;
 }
 
 .compass-s {
   left: 50%;
   top: 91%;
+}
+
+.compass-e {
+  left: 91%;
+  top: 50%;
 }
 
 .compass-w {
@@ -343,51 +469,71 @@ body[data-phase='day'] .weather-box {
 
 .compass-needle {
   position: absolute;
+
   left: 50%;
   top: 50%;
+
   width: 8px;
   height: 104px;
+
   transform-origin: 50% 50%;
+
   z-index: 4;
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+
+  transition: transform 0.7s cubic-bezier(.22,1,.36,1);
 }
 
 .needle-head {
   position: absolute;
+
   left: 50%;
   top: 0;
+
   width: 0;
   height: 0;
+
   transform: translateX(-50%);
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
+
+  border: 8px solid transparent;
   border-bottom: 52px solid #ff4d4d;
-  filter: drop-shadow(0 0 8px rgba(255, 60, 60, 0.6));
+
+  filter: drop-shadow(0 0 8px rgba(255,60,60,0.6));
 }
 
 .needle-tail {
   position: absolute;
+
   left: 50%;
   bottom: 0;
+
   width: 0;
   height: 0;
+
   transform: translateX(-50%);
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 48px solid rgba(120, 210, 255, 0.82);
+
+  border: 6px solid transparent;
+  border-top: 48px solid rgba(120,210,255,0.82);
 }
 
 .compass-center {
   position: absolute;
+
   left: 50%;
   top: 50%;
+
   width: 15px;
   height: 15px;
+
   transform: translate(-50%, -50%);
+
   border-radius: 50%;
+
   background: #ffffff;
+
   border: 3px solid #12364d;
+
   z-index: 5;
+
   box-shadow: 0 0 12px rgba(255,255,255,0.7);
 }
 
@@ -396,10 +542,24 @@ body[data-phase='day'] .weather-box {
     top: 14px;
     left: 14px;
     right: 14px;
+
     width: auto;
+
     max-height: calc(100vh - 28px);
+
     padding: 18px;
-    border-radius: 18px;
+
+    border-radius: var(--radius-md);
+  }
+
+  .weather-box.is-collapsed {
+    max-height: 68px;
+  }
+
+  .weather-panel-header {
+    font-size: 17px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
   }
 
   .weather-box h2 {
@@ -408,10 +568,6 @@ body[data-phase='day'] .weather-box {
 
   .weather-row {
     gap: 10px;
-  }
-
-  .weather-row span,
-  .weather-row strong {
     font-size: 13px;
   }
 
