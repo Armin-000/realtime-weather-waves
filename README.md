@@ -1,195 +1,116 @@
-# Realtime Weather Waves
+````md
+<div align="center">
 
-<p align="center">
-  Real-time cinematic ocean simulation powered by live weather and marine data.
-</p>
+# 🌊 Realtime Weather Waves
 
----
+### Cinematic real-time ocean simulation powered by live weather & marine data
 
-## Preview
+<br>
 
-### Night Environment
-![Night Preview](./weather-waves/public/day.png)
+<img src="./public/day.png" width="30%" />
+<img src="./public/sunset.png" width="30%" />
+<img src="./public/night.png" width="30%" />
 
-### Day Environment
-![Day Preview](./weather-waves/public/night.png)
+<br><br>
 
----
-
-## Overview
-
-Realtime Weather Waves is an advanced real-time 3D ocean simulation built with Three.js and WebGL.
-
-The application dynamically reacts to live meteorological and marine conditions by adjusting:
-- ocean wave intensity
-- atmospheric lighting
-- day/night transitions
-- wind direction and movement
-- water distortion
-- fog density
-- environmental colors
-
-The system combines live weather data with cinematic rendering techniques to create an immersive ocean environment directly in the browser.
+</div>
 
 ---
 
-## Features
+## ✨ Features
 
-### Real-Time Weather Integration
-Live environmental data is fetched from the Open-Meteo APIs:
-- temperature
-- wind speed
-- wind direction
-- sunrise & sunset
-- timezone
-- marine wave data
+<table align="center">
+<tr>
+<td align="center" width="33%">
 
----
+### 🌦 Live Weather
 
-### Dynamic Ocean Simulation
-Ocean behavior changes in real time depending on:
-- wind intensity
-- wave height
-- marine conditions
+Real-time weather conditions using the Open-Meteo Forecast API.
 
-The water system dynamically adjusts:
-- wave speed
-- wave size
-- distortion scale
-- fog density
-- ocean color
+</td>
 
----
+<td align="center" width="33%">
 
-### Adaptive Day & Night Cycle
-The environment automatically transitions between:
-- sunrise
-- daytime
-- sunset
-- nighttime
+### 🌊 Marine Data
 
-Lighting and atmosphere dynamically react to real-world solar conditions.
+Dynamic wave simulation powered by live marine conditions.
 
----
+</td>
 
-### Cinematic Night Rendering
-Night scenes include:
-- realistic moon rendering
-- atmospheric moon glow
-- animated stars
-- moonlight reflections
-- dark ocean atmosphere
+<td align="center" width="33%">
 
----
+### 🌙 Day & Night
 
-### Marine Data Visualization
-The application visualizes:
-- real wave height
-- wave direction
-- wave period
-- wind wave data
-- swell wave data
+Automatic sunrise, sunset and nighttime transitions.
 
-using the Open-Meteo Marine API.
+</td>
+</tr>
+
+<tr>
+<td align="center">
+
+### 💨 Wind System
+
+Animated wind visualization reacting to live wind direction and speed.
+
+</td>
+
+<td align="center">
+
+### 🧭 Interactive Dashboard
+
+Search locations worldwide with real-time environmental data.
+
+</td>
+
+<td align="center">
+
+### 🎬 Cinematic Atmosphere
+
+Fog, moonlight, stars and dynamic environmental rendering.
+
+</td>
+</tr>
+</table>
 
 ---
 
-### Wind Visualization System
-Animated wind ribbons simulate atmospheric movement based on:
-- wind speed
-- wind direction
-- weather intensity
+## 🛰 APIs
+
+| API | Purpose |
+|---|---|
+| Open-Meteo Forecast API | Temperature, wind, sunrise/sunset |
+| Open-Meteo Marine API | Wave height, wave direction, swell |
+| Open-Meteo Geocoding API | Location search & coordinates |
 
 ---
 
-### Interactive Weather Dashboard
-Users can search any location worldwide:
-- Rijeka
-- Split
-- Silba
-- Tórshavn
-- Reykjavik
-- Washington
-- etc.
+## ⚙ Technologies
 
-The dashboard displays:
-- local time
-- coordinates
-- weather conditions
-- marine conditions
-- compass direction
-- ocean state
+<div align="center">
+
+`Three.js` • `WebGL` • `JavaScript` • `Vite` • `Open-Meteo APIs`
+
+</div>
 
 ---
 
-## Technologies
-
-- Three.js
-- WebGL
-- JavaScript
-- Vite
-- Open-Meteo API
-- Open-Meteo Marine API
-
----
-
-## APIs
-
-### Open-Meteo Forecast API
-Used for:
-- temperature
-- wind
-- sunrise/sunset
-- timezone
-- day/night state
+## 📁 Project Structure
 
 ```txt
-https://api.open-meteo.com/v1/forecast
-```
-
-### Open-Meteo Marine API
-Used for:
-- wave height
-- wave direction
-- wave period
-- swell data
-- marine conditions
-
-```txt
-https://marine-api.open-meteo.com/v1/marine
-```
-
-### Open-Meteo Geocoding API
-Used for:
-- location search
-- coordinates
-- timezone detection
-
-```txt
-https://geocoding-api.open-meteo.com/v1/search
-```
-
----
-
-## Project Structure
-
-```text
 src/
-│
 ├── weather/
 │   └── weatherService.js
-│
 ├── water/
 │   └── weatherWaves.js
-│
 ├── main.js
 ├── style.css
 └── index.html
-```
+````
 
 ---
 
-## Installation
+## 🚀 Installation
 
 ```bash
 npm install
@@ -198,61 +119,31 @@ npm run dev
 
 ---
 
-## Recommended Test Locations
+## 🌍 Recommended Test Locations
 
-### Storm & Large Waves
-```txt
-Tórshavn
-Reykjavik
-Nuuk
-Ushuaia
-Cape Town
+| Environment            | Locations                   |
+| ---------------------- | --------------------------- |
+| 🌊 Storm & Large Waves | Tórshavn, Reykjavik, Nuuk   |
+| 🌅 Sunset Atmosphere   | London, Amsterdam, Brussels |
+| ☀ Bright Daylight      | Dubai, Singapore, Tokyo     |
+| 🇭🇷 Adriatic Sea      | Rijeka, Split, Silba        |
+
+---
+
+## 🔮 Planned Features
+
+* Rain & lightning system
+* Ocean foam simulation
+* Volumetric clouds
+* Advanced Gerstner waves
+* Dynamic storms
+* SSR reflections
+
+---
+
+<div align="center">
+
+### MIT License
+
+</div>
 ```
-
-### Adriatic Sea
-```txt
-Rijeka
-Split
-Silba
-Zadar
-Dubrovnik
-```
-
----
-
-## Notes
-
-The current ocean implementation uses the built-in Three.js Water shader system.
-
-Wave height from the Marine API is used to dynamically enhance:
-- distortion
-- wave movement
-- atmosphere
-- environmental intensity
-
-The project currently focuses on:
-- cinematic realism
-- atmospheric rendering
-- responsive environmental simulation
-
-rather than physically simulated FFT or Gerstner ocean waves.
-
----
-
-## Future Improvements
-
-Planned upgrades:
-- rain particle system
-- lightning effects
-- volumetric clouds
-- ocean foam
-- Gerstner wave simulation
-- dynamic storms
-- SSR reflections
-- advanced ocean shaders
-
----
-
-## License
-
-MIT License
