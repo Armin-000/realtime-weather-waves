@@ -76,11 +76,15 @@ Fog, moonlight, stars and cinematic environmental effects.
 
 ## APIs
 
+<div align="center">
+
 | API | Purpose |
-|---|---|
+|:---:|:---:|
 | Open-Meteo Forecast API | Temperature, wind, sunrise and sunset |
 | Open-Meteo Marine API | Wave height, wave direction and swell |
 | Open-Meteo Geocoding API | Location search and coordinates |
+
+</div>
 
 ---
 
@@ -120,12 +124,16 @@ npm run dev
 
 ## Recommended Test Locations
 
+<div align="center">
+
 | Environment | Locations |
-|---|---|
+|:---:|:---:|
 | Storm & Large Waves | Tórshavn, Reykjavik, Nuuk |
 | Sunset Atmosphere | London, Amsterdam, Brussels |
 | Bright Daylight | Dubai, Singapore, Tokyo |
 | Adriatic Sea | Rijeka, Split, Silba |
+
+</div>
 
 ---
 
