@@ -1,4 +1,4 @@
-const COMPASS = ['Sjever','Sjeveroistok','Istok','Jugoistok','Jug','Jugozapad','Zapad','Sjeverozapad']
+const COMPASS = ['North','Northeast','East','Southeast','South','Southwest','West','Northwest']
 
 export const degreesToCompass = deg => {
   const n = Number(deg)
@@ -7,10 +7,10 @@ export const degreesToCompass = deg => {
 }
 
 export async function geocodePlace(query) {
-  const res  = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=hr&format=json`)
-  if (!res.ok) throw new Error('Greška kod pretraživanja grada.')
+  const res  = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`)
+  if (!res.ok) throw new Error('City search failed.')
   const data = await res.json()
-  if (!data.results?.length) throw new Error(`Grad "${query}" nije pronađen.`)
+  if (!data.results?.length) throw new Error(`City "${query}" was not found.`)
   const { name, country, latitude, longitude, timezone } = data.results[0]
   return { name, country, latitude, longitude, timezone }
 }
@@ -25,7 +25,7 @@ async function getMarineData(latitude, longitude) {
     const data = await res.json()
     return data.current ?? null
   } catch (err) {
-    console.warn('Marine API nije dostupan:', err)
+    console.warn('Marine API is not available:', err)
     return null
   }
 }
@@ -38,9 +38,9 @@ export async function getCurrentWeather(query = 'Rijeka') {
     `&current=temperature_2m,wind_speed_10m,wind_direction_10m,is_day,weather_code` +
     `&daily=sunrise,sunset&wind_speed_unit=kmh&timezone=auto`
   )
-  if (!res.ok) throw new Error(`Greška kod dohvaćanja prognoze: ${res.status}`)
+  if (!res.ok) throw new Error(`Error fetching weather forecast: ${res.status}`)
   const data = await res.json()
-  if (!data.current || !data.daily) throw new Error('API nije vratio očekivane podatke.')
+  if (!data.current || !data.daily) throw new Error('API did not return expected data.')
 
   const marine  = await getMarineData(place.latitude, place.longitude)
   const cur     = data.current

@@ -6,8 +6,8 @@ const roundWave = v => Math.round(v * 10) / 10
 const SEA_STATES = [
   {
     test:        (wind, wave) => wave >= 2.2 || wind >= 45,
-    label:       'Olujno more',
-    descFallback:'More je nemirno, valovi su agresivni i brzi.',
+    label:       'Stormy sea',
+    descFallback:'The sea is rough, with aggressive and fast-moving waves.',
     className:   'storm',
     wave:        { fallback: 1.05, visibleFallback: 2.4 },
     params:      i => ({ waveSpeed: 1.8 + i*0.8, waveFrequency: 1.75 + i*0.4, choppiness: 1.25 + i*0.75,
@@ -16,8 +16,8 @@ const SEA_STATES = [
   },
   {
     test:        (wind, wave) => wave >= 1.2 || wind >= 25,
-    label:       'Jako valovito',
-    descFallback:'Valovi su viši i more jasno reagira na vjetar.',
+    label:       'Rough sea',
+    descFallback:'The waves are higher and the sea clearly reacts to the wind.',
     className:   'strong',
     wave:        { fallback: 0.62, visibleFallback: 1.35 },
     params:      i => ({ waveSpeed: 1.2 + i*0.7, waveFrequency: 1.35 + i*0.35, choppiness: 0.85 + i*0.55,
@@ -26,8 +26,8 @@ const SEA_STATES = [
   },
   {
     test:        (wind, wave) => wave >= 0.5 || wind >= 10,
-    label:       'Lagano valovito',
-    descFallback:'More se lagano kreće zbog umjerenog vjetra.',
+    label:       'Light waves',
+    descFallback:'The sea is moving slightly due to moderate wind.',
     className:   'light',
     wave:        { fallback: 0.32, visibleFallback: 0.65 },
     params:      i => ({ waveSpeed: 0.75 + i*0.5, waveFrequency: 1.05, choppiness: 0.45 + i*0.35,
@@ -36,8 +36,8 @@ const SEA_STATES = [
   },
   {
     test:        () => true,
-    label:       'Mirno more',
-    descFallback:'Valovi su niski i more je gotovo mirno.',
+    label:       'Calm sea',
+    descFallback:'The waves are low and the sea is almost calm.',
     className:   'calm',
     wave:        { fallback: 0.16, visibleFallback: 0.25 },
     params:      i => ({ waveSpeed: 0.45 + i*0.25, waveFrequency: 0.75, choppiness: 0.2 + i*0.25,
@@ -57,7 +57,7 @@ export function mapWindToSeaState(windSpeed = 0, realWaveHeight = null) {
   return {
     label:       state.label,
     description: hasWave
-      ? `Stvarna visina valova je oko ${roundWave(wave)} m. ${state.label}.`
+      ? `Real wave height is around ${roundWave(wave)} m. ${state.label}.`
       : state.descFallback,
     className:   state.className,
     intensity,
