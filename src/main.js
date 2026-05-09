@@ -10,12 +10,12 @@ import './style.css'
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-Object.assign(renderer, { toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.1 })
+Object.assign(renderer, { toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 0.50 })
 document.querySelector('#app').appendChild(renderer.domElement)
 
 const scene  = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 20000)
-camera.position.set(0, 8, 28)
+camera.position.set(0, 5, 28)
 
 const controls = new OrbitControls(camera, renderer.domElement)
 Object.assign(controls, { enableDamping: true, minDistance: 8, maxDistance: 120, maxPolarAngle: Math.PI * 0.48 })
@@ -35,7 +35,7 @@ const waterNormals = loader.load('https://threejs.org/examples/textures/waternor
 
 const water = new Water(new THREE.PlaneGeometry(10000, 10000), {
   textureWidth: 1024, textureHeight: 1024, waterNormals,
-  sunDirection: new THREE.Vector3(), sunColor: 0xffffff,
+  sunDirection: new THREE.Vector3(), sunColor: 0xd8ecff,
   waterColor: 0x00324d, distortionScale: 3.7, fog: true
 })
 water.rotation.x = -Math.PI / 2
@@ -125,10 +125,57 @@ for (let i = 0; i < 55; i++) {
 
 // ─── Phase config ─────────────────────────────────────────────────────────────
 const PHASES = {
-  night:   { el:-8,  az:180, exp:0.55, turb:1.4,  ray:0.18, mie:0.001, lit:0.12, ml:2.2,  am:0.85, wc:0x9fc7ff },
-  sunrise: { el:5,   az:115, exp:0.78, turb:9,    ray:1.8,  mie:0.006, lit:1.2,  ml:0,    am:0,    wc:0xffb36b },
-  day:     { el:22,  az:180, exp:1.08, turb:6,    ray:1.8,  mie:0.004, lit:2,    ml:0,    am:0,    wc:0x73d8ff },
-  sunset:  { el:4,   az:245, exp:0.65, turb:10,   ray:2.6,  mie:0.008, lit:1,    ml:0.15, am:0.08, wc:0xff8a4c }
+  night: {
+    el: -8,
+    az: 180,
+    exp: 0.35,
+    turb: 1.2,
+    ray: 0.12,
+    mie: 0.0008,
+    lit: 0.05,
+    ml: 1.6,
+    am: 0.55,
+    wc: 0x9fc7ff
+  },
+
+  sunrise: {
+    el: 4,
+    az: 115,
+    exp: 0.45,
+    turb: 6,
+    ray: 1.2,
+    mie: 0.0025,
+    lit: 0.45,
+    ml: 0,
+    am: 0,
+    wc: 0xffb36b
+  },
+
+  day: {
+    el: 14,
+    az: 180,
+    exp: 0.38,
+    turb: 3.2,
+    ray: 0.75,
+    mie: 0.0012,
+    lit: 0.35,
+    ml: 0,
+    am: 0,
+    wc: 0x73d8ff
+  },
+
+  sunset: {
+    el: 3,
+    az: 245,
+    exp: 0.42,
+    turb: 6,
+    ray: 1.4,
+    mie: 0.003,
+    lit: 0.35,
+    ml: 0.1,
+    am: 0.04,
+    wc: 0xff8a4c
+  }
 }
 const PHASE_LABELS = { night:'Noć', sunrise:'Izlazak sunca', day:'Dan', sunset:'Sumrak / zalazak' }
 
@@ -169,7 +216,10 @@ function applyDayPhase(phase, weather) {
   const s = PHASES[phase] ?? PHASES.day
   renderer.toneMappingExposure = s.exp
   su.turbidity.value = s.turb; su.rayleigh.value = s.ray; su.mieCoefficient.value = s.mie
-  updateSun(weather ? getSunElevation(weather) : s.el, s.az)
+  const realElevation = weather ? getSunElevation(weather) : s.el
+  const limitedElevation = THREE.MathUtils.clamp(realElevation, -8, s.el)
+
+  updateSun(limitedElevation, s.az)
   dirLight.intensity = s.lit; moonLight.intensity = s.ml
   ambientNight.intensity = s.am; moonFill.intensity = phase === 'night' ? 0.55 : 0
   windGroup.children.forEach(r => r.material.color.setHex(s.wc))
