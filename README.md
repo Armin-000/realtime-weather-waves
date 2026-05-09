@@ -7,8 +7,11 @@
 
 <br>
 
-<img src="./public/day.png" width="44%" />
-<img src="./public/night.png" width="44%" />
+<img src="./public/day.png" width="30%" />
+&nbsp;&nbsp;
+<img src="./public/sunset.png" width="30%" />
+&nbsp;&nbsp;
+<img src="./public/night.png" width="30%" />
 
 <br><br>
 
