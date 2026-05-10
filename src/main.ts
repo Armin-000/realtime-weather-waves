@@ -61,9 +61,16 @@ const controls = new OrbitControls(camera, renderer.domElement)
 
 Object.assign(controls, {
   enableDamping: true,
+  enablePan: true,
+
   minDistance: 8,
   maxDistance: 320,
-  maxPolarAngle: Math.PI * 0.48
+
+  minPolarAngle: 0.05,
+  maxPolarAngle: Math.PI * 0.95,
+
+  minAzimuthAngle: -Infinity,
+  maxAzimuthAngle: Infinity
 })
 
 controls.target.set(0, 0, 0)
@@ -246,13 +253,17 @@ updateSun()
 const nightGroup = new THREE.Group()
 scene.add(nightGroup)
 
-const STAR_COUNT = 2500
+const STAR_COUNT = 3000
+const STAR_RADIUS = 1800
 const starPos = new Float32Array(STAR_COUNT * 3)
 
 for (let i = 0; i < STAR_COUNT; i++) {
-  starPos[i * 3] = (Math.random() - 0.5) * 2200
-  starPos[i * 3 + 1] = 80 + Math.random() * 900
-  starPos[i * 3 + 2] = (Math.random() - 0.5) * 2200
+  const theta = Math.random() * Math.PI * 2
+  const phi = THREE.MathUtils.degToRad(15 + Math.random() * 70)
+
+  starPos[i * 3] = Math.cos(theta) * Math.cos(phi) * STAR_RADIUS
+  starPos[i * 3 + 1] = Math.sin(phi) * STAR_RADIUS
+  starPos[i * 3 + 2] = Math.sin(theta) * Math.cos(phi) * STAR_RADIUS
 }
 
 const starGeo = new THREE.BufferGeometry()
@@ -260,9 +271,13 @@ starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3))
 
 const starMat = new THREE.PointsMaterial({
   color: 0xffffff,
-  size: 1.25,
+  size: 4.5,
+  sizeAttenuation: false,
   transparent: true,
-  opacity: 0
+  opacity: 0,
+  depthWrite: false,
+  depthTest: false,
+  fog: false
 })
 
 const stars = new THREE.Points(starGeo, starMat)
@@ -705,7 +720,14 @@ function animate() {
   })
 
   if (nightGroup.visible) {
+    nightGroup.position.copy(camera.position)
     stars.rotation.y += delta * 0.01
+  }
+
+  const minCameraHeight = 2.5
+
+  if (camera.position.y < minCameraHeight) {
+    camera.position.y = minCameraHeight
   }
 
   controls.update()
