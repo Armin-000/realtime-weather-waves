@@ -1,12 +1,26 @@
+
 <div align="center">
 
-<img src="./public/oceanis.svg" width="160" />
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="./public/oceanis-light.svg"
+  />
 
-<h1>Weather Waves</h1>
+  <source
+    media="(prefers-color-scheme: light)"
+    srcset="./public/oceanis-dark.svg"
+  />
 
-<p>
+  <img
+    src="./public/oceanis-dark.svg"
+    width="160"
+  />
+</picture>
+
+# Oceanis
+
 Real-time cinematic ocean simulation driven by live weather and marine conditions.
-</p>
 
 <br>
 
@@ -22,16 +36,18 @@ Real-time cinematic ocean simulation driven by live weather and marine condition
 
 ## Overview
 
-Weather Waves is a real-time environmental visualization project built with Three.js and WebGL.  
-The application combines live atmospheric and marine data with physically animated ocean surfaces, dynamic lighting and cinematic rendering techniques.
+Oceanis is a real-time environmental visualization project built with Three.js and WebGL.
+
+The application combines live atmospheric and marine data with physically animated ocean surfaces, cinematic lighting, dynamic sky rendering and procedural environmental effects.
 
 The simulation reacts to real-world conditions including:
 
 - wind speed and direction
-- wave height and marine state
+- wave intensity and marine state
 - sunrise and sunset cycles
 - local time zones
 - atmospheric visibility
+- storm intensity
 
 ---
 
@@ -83,23 +99,31 @@ The simulation reacts to real-world conditions including:
 ## Project Structure
 
 ```txt
-weather-waves/
+oceanis/
 ├── public/
+│   ├── oceanis-dark.svg
+│   ├── oceanis-light.svg
+│   ├── day.png
+│   ├── sunset.png
+│   └── night.png
+│
 ├── src/
-│   ├── assets/
 │   ├── panel/
 │   │   └── panelBuilder.js
+│   │
 │   ├── water/
 │   │   └── weatherWaves.js
+│   │
 │   ├── weather/
 │   │   └── weatherService.js
-│   ├── counter.js
+│   │
 │   ├── main.js
 │   └── style.css
+│
 ├── index.html
 ├── package.json
 └── README.md
-```
+````
 
 ---
 
@@ -116,12 +140,12 @@ npm run dev
 
 <div align="center">
 
-| Scenario | Locations |
-|---|---|
-| Heavy ocean conditions | Nuuk, Reykjavik, Tórshavn |
-| Calm sea | Split, Zadar, Silba |
-| Night atmosphere | South Pole, McMurdo Station |
-| Sunset rendering | Amsterdam, London, Oslo |
+| Scenario               | Locations                   |
+| ---------------------- | --------------------------- |
+| Heavy ocean conditions | Nuuk, Reykjavik, Tórshavn   |
+| Calm sea conditions    | Split, Zadar, Silba         |
+| Night atmosphere       | South Pole, McMurdo Station |
+| Sunset rendering       | Amsterdam, London, Oslo     |
 
 </div>
 
@@ -131,13 +155,23 @@ npm run dev
 
 The environment rendering system includes:
 
-- dynamic sky scattering
-- volumetric atmospheric transitions
-- physically animated ocean mesh
-- procedural wave deformation
-- adaptive marine state simulation
-- real-time wind visualization
-- HDR-style tone mapping
+* dynamic atmospheric scattering
+* procedural ocean deformation
+* real-time wind visualization
+* adaptive marine simulation
+* cinematic tone mapping
+* procedural night sky rendering
+* volumetric environmental transitions
+
+---
+
+## Development
+
+```bash
+npm run dev
+npm run build
+npm run preview
+```
 
 ---
 
