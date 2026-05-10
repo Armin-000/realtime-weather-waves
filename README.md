@@ -58,6 +58,31 @@ The environment continuously adapts in real time to incoming weather and marine 
 - Modular rendering system
 
 ---
+## Marine Risk Profile
+
+Oceanis can visualize marine intensity through a calculated risk profile based on live environmental data.
+
+The marine risk score combines:
+
+- wind speed
+- real wave height
+- wind wave height
+- swell wave height
+- storm intensity
+- weather code severity
+
+The graph uses the X axis for environmental factors and the Y axis for normalized intensity from 0 to 100.
+
+Example:
+
+| Factor | Value |
+|---|---:|
+| Wind Speed | 42 |
+| Wave Height | 68 |
+| Swell Height | 51 |
+| Wind Waves | 57 |
+| Storm Intensity | 74 |
+| Ocean Risk Score | 82 |
 
 ## GPU Ocean System
 
