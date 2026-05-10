@@ -4,16 +4,16 @@
 <picture>
   <source
     media="(prefers-color-scheme: dark)"
-    srcset="./public/oceanis-light.svg"
+    srcset="public/oceanis-light.svg"
   />
 
   <source
     media="(prefers-color-scheme: light)"
-    srcset="./public/oceanis-dark.svg"
+    srcset="public/oceanis-dark.svg"
   />
 
   <img
-    src="./public/oceanis-dark.svg"
+    src="public/oceanis-dark.svg"
     width="160"
   />
 </picture>
@@ -24,11 +24,11 @@ Real-time cinematic ocean simulation driven by live weather and marine condition
 
 <br>
 
-<img src="./public/day.png" width="30%" />
+<img src="public/day.png" width="30%" />
 &nbsp;&nbsp;
-<img src="./public/sunset.png" width="30%" />
+<img src="public/sunset.png" width="30%" />
 &nbsp;&nbsp;
-<img src="./public/night.png" width="30%" />
+<img src="public/night.png" width="30%" />
 
 </div>
 
