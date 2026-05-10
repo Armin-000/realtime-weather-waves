@@ -362,8 +362,14 @@ Possible future upgrades include:
 
 ## License
 
-<div align="center">
+Oceanis is protected under a custom non-commercial license.
 
-MIT License
+Commercial usage, redistribution, resale,
+or use in paid products or services is prohibited
+without explicit written permission from the author.
+
+© 2026 Armin Lišić
+
+---
 
 </div>
