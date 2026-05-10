@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Water } from 'three/examples/jsm/objects/Water.js'
 import { Sky } from 'three/examples/jsm/objects/Sky.js'
-import { getCurrentWeather } from './weather/weatherService.js'
-import { mapWeatherToSeaState, applySeaStateToWater } from './water/weatherWaves.js'
+import { getCurrentWeather } from './weather/weatherService'
+import { mapWeatherToSeaState, applySeaStateToWater } from './water/weatherWaves'
 import {
   buildWeatherPanel,
   buildLoadingPanel,
@@ -11,19 +11,30 @@ import {
   setPanel,
   bindSearch,
   PHASE_LABELS
-} from './panel/panelBuilder.js'
+} from './panel/panelBuilder'
 import './style.css'
+
+type WeatherData = Awaited<ReturnType<typeof getCurrentWeather>>
+type SeaState = ReturnType<typeof mapWeatherToSeaState> & {
+  windDirection?: number
+}
+
+type DayPhase = 'night' | 'sunrise' | 'day' | 'sunset'
+
+const app = document.querySelector<HTMLDivElement>('#app')
+
+if (!app) {
+  throw new Error('App container was not found.')
+}
 
 // ─── Renderer / Scene / Camera ───────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-Object.assign(renderer, {
-  toneMapping: THREE.ACESFilmicToneMapping,
-  toneMappingExposure: 0.50
-})
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 0.5
 
-document.querySelector('#app').appendChild(renderer.domElement)
+app.appendChild(renderer.domElement)
 
 const scene = new THREE.Scene()
 
@@ -90,14 +101,14 @@ water.userData = {
 
 scene.add(water)
 
-const waterPosition = water.geometry.attributes.position
+const waterPosition = water.geometry.attributes.position as THREE.BufferAttribute
 const baseWaterPositions = waterPosition.array.slice()
 
-function updatePhysicalWaves(time) {
+function updatePhysicalWaves(time: number) {
   const sea = currentSeaState
   if (!sea) return
 
-  const pos = water.geometry.attributes.position
+  const pos = water.geometry.attributes.position as THREE.BufferAttribute
   const arr = pos.array
 
   const intensity = sea.intensity ?? 0.3
@@ -118,8 +129,8 @@ function updatePhysicalWaves(time) {
   const speed = sea.waveAnimationSpeed ?? 1
 
   for (let i = 0; i < arr.length; i += 3) {
-    const x = baseWaterPositions[i]
-    const y = baseWaterPositions[i + 1]
+    const x = Number(baseWaterPositions[i])
+    const y = Number(baseWaterPositions[i + 1])
 
     const wave1 = Math.sin(x * frequency + time * speed * 1.5)
     const wave2 = Math.sin(y * frequency * 1.4 + time * speed * 1.2)
@@ -141,7 +152,7 @@ function updatePhysicalWaves(time) {
 // ─── Lighting ────────────────────────────────────────────────────────────────
 const sun = new THREE.Vector3()
 const pmrem = new THREE.PMREMGenerator(renderer)
-let envTarget = null
+let envTarget: THREE.WebGLRenderTarget | null = null
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 2)
 const moonLight = new THREE.DirectionalLight(0xc7ddff, 0)
@@ -207,15 +218,24 @@ function createWindTexture() {
   })
 
   const ctx = canvas.getContext('2d')
+
+  if (!ctx) {
+    throw new Error('Canvas 2D context could not be created.')
+  }
+
   const gradient = ctx.createLinearGradient(0, 0, 512, 0)
 
-  ;[
+  const gradientStops: [number, string][] = [
     [0, 'rgba(255,255,255,0)'],
     [0.18, 'rgba(255,255,255,0.18)'],
     [0.5, 'rgba(255,255,255,0.75)'],
     [0.82, 'rgba(255,255,255,0.18)'],
     [1, 'rgba(255,255,255,0)']
-  ].forEach(([stop, color]) => gradient.addColorStop(stop, color))
+  ]
+
+  gradientStops.forEach(([stop, color]) => {
+    gradient.addColorStop(stop, color)
+  })
 
   ctx.fillStyle = gradient
 
@@ -280,7 +300,18 @@ for (let i = 0; i < 180; i++) {
 }
 
 // ─── Phase config ─────────────────────────────────────────────────────────────
-const PHASES = {
+const PHASES: Record<DayPhase, {
+  el: number
+  az: number
+  exp: number
+  turb: number
+  ray: number
+  mie: number
+  lit: number
+  ml: number
+  am: number
+  wc: number
+}> = {
   night: {
     el: -8,
     az: 180,
@@ -335,9 +366,9 @@ const PHASES = {
 }
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let currentDayPhase = 'day'
-let currentWeatherData = null
-let currentSeaState = null
+let currentDayPhase: DayPhase = 'day'
+let currentWeatherData: WeatherData | null = null
+let currentSeaState: SeaState | null = null
 let isWeatherLoading = false
 let selectedPlace = 'Rijeka'
 
@@ -355,7 +386,7 @@ const getLocalTimeStr = () =>
     second: '2-digit'
   })
 
-function getDayPhase(weather) {
+function getDayPhase(weather: WeatherData): DayPhase {
   const now = getLocalDate()
   const rise = new Date(weather.sunrise)
   const set = new Date(weather.sunset)
@@ -363,7 +394,6 @@ function getDayPhase(weather) {
   const riseTime = rise.getTime()
   const setTime = set.getTime()
 
-  // Polar fallback: Open-Meteo sometimes returns 12:00 AM / 12:00 AM
   if (
     !Number.isFinite(riseTime) ||
     !Number.isFinite(setTime) ||
@@ -380,34 +410,38 @@ function getDayPhase(weather) {
     return hour >= 20 || hour <= 5 ? 'night' : 'day'
   }
 
-  if (now < new Date(+rise - 45 * 60000)) return 'night'
-  if (now <= new Date(+rise + 45 * 60000)) return 'sunrise'
-  if (now < new Date(+set - 60 * 60000)) return 'day'
-  if (now <= new Date(+set + 45 * 60000)) return 'sunset'
+  if (now < new Date(riseTime - 45 * 60000)) return 'night'
+  if (now <= new Date(riseTime + 45 * 60000)) return 'sunrise'
+  if (now < new Date(setTime - 60 * 60000)) return 'day'
+  if (now <= new Date(setTime + 45 * 60000)) return 'sunset'
 
   return 'night'
 }
 
-function getSunElevation(weather) {
+function getSunElevation(weather: WeatherData) {
   const now = getLocalDate()
   const rise = new Date(weather.sunrise)
   const set = new Date(weather.sunset)
 
+  const nowTime = now.getTime()
+  const riseTime = rise.getTime()
+  const setTime = set.getTime()
+
   if (
-    !Number.isFinite(rise.getTime()) ||
-    !Number.isFinite(set.getTime()) ||
-    rise.getTime() === set.getTime() ||
-    now < rise ||
-    now > set
+    !Number.isFinite(riseTime) ||
+    !Number.isFinite(setTime) ||
+    riseTime === setTime ||
+    nowTime < riseTime ||
+    nowTime > setTime
   ) {
     return -8
   }
 
-  return Math.sin(((now - rise) / (set - rise)) * Math.PI) * 45
+  return Math.sin(((nowTime - riseTime) / (setTime - riseTime)) * Math.PI) * 45
 }
 
 // ─── Day/Night transition ─────────────────────────────────────────────────────
-function applyDayPhase(phase, weather) {
+function applyDayPhase(phase: DayPhase, weather: WeatherData | null) {
   currentDayPhase = phase
 
   const phaseSettings = PHASES[phase] ?? PHASES.day
@@ -432,7 +466,9 @@ function applyDayPhase(phase, weather) {
   moonFill.intensity = phase === 'night' ? 0.55 : 0
 
   windGroup.children.forEach(ribbon => {
-    ribbon.material.color.setHex(phaseSettings.wc)
+    const mesh = ribbon as THREE.Mesh
+    const material = mesh.material as THREE.MeshBasicMaterial
+    material.color.setHex(phaseSettings.wc)
   })
 
   const showStars = phase === 'night' || phase === 'sunset'
@@ -463,11 +499,14 @@ panelHeader.addEventListener('click', () => {
   weatherBox.classList.toggle('is-collapsed')
 })
 
-const _setPanel = (html, loading = false, onComplete = null) =>
-  setPanel(weatherBox, panelContent, html, loading, onComplete)
+const _setPanel = (
+  html: string,
+  loading = false,
+  onComplete: (() => void) | null = null
+) => setPanel(weatherBox, panelContent, html, loading, onComplete)
 
 function bindPanelSearch() {
-  bindSearch(value => {
+  bindSearch((value: string) => {
     if (isWeatherLoading) return
 
     selectedPlace = value
@@ -482,7 +521,7 @@ async function loadWeather() {
   isWeatherLoading = true
 
   _setPanel(buildLoadingPanel(selectedPlace), true, () => {
-    bindSearch(value => {
+    bindSearch((value: string) => {
       selectedPlace = value
       isWeatherLoading = false
       loadWeather()
@@ -495,7 +534,7 @@ async function loadWeather() {
     currentWeatherData = weather
     selectedPlace = weather.place
 
-    const seaState = mapWeatherToSeaState(weather)
+    const seaState: SeaState = mapWeatherToSeaState(weather)
     const phase = getDayPhase(weather)
 
     seaState.windDirection = weather.windDirection
@@ -515,7 +554,8 @@ async function loadWeather() {
         bindPanelSearch
       )
     }, 260)
-  } catch (err) {
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error))
     console.error(err)
 
     setTimeout(() => {
@@ -562,30 +602,42 @@ function animate() {
   )
 
   windGroup.children.forEach(ribbon => {
-    const { floatOffset, baseY, scaleBase, speed } = ribbon.userData
+    const mesh = ribbon as THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>
 
-    ribbon.material.opacity =
+    const {
+      floatOffset,
+      baseY,
+      scaleBase,
+      speed
+    } = mesh.userData as {
+      floatOffset: number
+      baseY: number
+      scaleBase: number
+      speed: number
+    }
+
+    mesh.material.opacity =
       0.08 +
       strength * 0.32 +
       storm * 0.18 +
       Math.sin(t * 2 + floatOffset) * 0.04
 
-    ribbon.position.x += speed * windFactor * 24
+    mesh.position.x += speed * windFactor * 24
 
-    ribbon.position.y =
+    mesh.position.y =
       baseY +
       Math.sin(t * 1.4 + floatOffset) * (0.45 + storm * 0.35)
 
-    ribbon.scale.set(
+    mesh.scale.set(
       scaleBase + Math.sin(t * 1.2 + floatOffset) * (0.08 + storm * 0.05),
       0.85 + Math.sin(t * 1.8 + floatOffset) * (0.12 + storm * 0.08),
       1
     )
 
-    if (ribbon.position.x > 450) {
-      ribbon.position.x = -450
-      ribbon.position.y = ribbon.userData.baseY = 3 + Math.random() * 18
-      ribbon.position.z = (Math.random() - 0.5) * 700
+    if (mesh.position.x > 450) {
+      mesh.position.x = -450
+      mesh.position.y = mesh.userData.baseY = 3 + Math.random() * 18
+      mesh.position.z = (Math.random() - 0.5) * 700
     }
   })
 
@@ -601,7 +653,7 @@ animate()
 
 // ─── Intervals & resize ───────────────────────────────────────────────────────
 setInterval(() => {
-  const timeEl = document.querySelector('#live-time')
+  const timeEl = document.querySelector<HTMLElement>('#live-time')
 
   if (timeEl) {
     timeEl.textContent = getLocalTimeStr()
@@ -616,7 +668,7 @@ setInterval(() => {
   applyDayPhase(phase, currentWeatherData)
   document.body.dataset.phase = phase
 
-  const label = document.querySelector('#day-phase-label')
+  const label = document.querySelector<HTMLElement>('#day-phase-label')
 
   if (label) {
     label.textContent = PHASE_LABELS[phase]

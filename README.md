@@ -1,3 +1,4 @@
+
 <div align="center">
 
 <img src="public/github.svg" width="160" />
@@ -20,33 +21,36 @@ Real-time cinematic ocean simulation driven by live weather and marine condition
 
 ## Overview
 
-Oceanis is a real-time environmental visualization project built with Three.js and WebGL.
+Oceanis is a cinematic real-time ocean and atmosphere simulation built using Three.js, WebGL and TypeScript.
 
-The application combines live atmospheric and marine data with physically animated ocean surfaces, cinematic lighting, dynamic sky rendering and procedural environmental effects.
+The application combines live weather and marine conditions with physically animated ocean surfaces, procedural environmental effects and dynamic atmospheric rendering.
 
-The simulation reacts to real-world conditions including:
+The simulation reacts to real-world environmental data including:
 
 - wind speed and direction
-- wave intensity and marine state
+- marine wave intensity
+- storm conditions
 - sunrise and sunset cycles
-- local time zones
+- local timezone changes
 - atmospheric visibility
-- storm intensity
+- dynamic ocean response
 
 ---
 
 ## Features
 
 - Real-time weather integration
-- Dynamic ocean wave simulation
-- Animated wind field rendering
+- Real-time marine condition simulation
+- Physically animated 3D ocean waves
+- Dynamic wind field visualization
 - Automatic day and night transitions
-- Procedural star field rendering
-- Physically animated water geometry
+- Procedural night sky rendering
 - Interactive location search
-- Cinematic lighting and atmospheric effects
-- Marine condition visualization
+- Cinematic atmosphere rendering
+- Dynamic fog and lighting system
 - Responsive WebGL rendering pipeline
+- TypeScript-based architecture
+- Modular rendering system
 
 ---
 
@@ -57,8 +61,8 @@ The simulation reacts to real-world conditions including:
 | Technology | Purpose |
 |---|---|
 | Three.js | 3D rendering engine |
-| WebGL | GPU rendering |
-| JavaScript | Application logic |
+| WebGL | GPU accelerated rendering |
+| TypeScript | Application architecture |
 | Vite | Development environment |
 | Open-Meteo APIs | Weather and marine data |
 
@@ -73,7 +77,7 @@ The simulation reacts to real-world conditions including:
 | API | Usage |
 |---|---|
 | Open-Meteo Forecast API | Weather conditions |
-| Open-Meteo Marine API | Wave and marine data |
+| Open-Meteo Marine API | Marine and wave data |
 | Open-Meteo Geocoding API | Location search |
 
 </div>
@@ -85,6 +89,7 @@ The simulation reacts to real-world conditions including:
 ```txt
 oceanis/
 ├── public/
+│   ├── github.svg
 │   ├── oceanis-dark.svg
 │   ├── oceanis-light.svg
 │   ├── day.png
@@ -93,19 +98,21 @@ oceanis/
 │
 ├── src/
 │   ├── panel/
-│   │   └── panelBuilder.js
+│   │   └── panelBuilder.ts
 │   │
 │   ├── water/
-│   │   └── weatherWaves.js
+│   │   └── weatherWaves.ts
 │   │
 │   ├── weather/
-│   │   └── weatherService.js
+│   │   └── weatherService.ts
 │   │
-│   ├── main.js
+│   ├── main.ts
 │   └── style.css
 │
 ├── index.html
+├── tsconfig.json
 ├── package.json
+├── vite.config.js
 └── README.md
 ````
 
@@ -116,6 +123,30 @@ oceanis/
 ```bash
 npm install
 npm run dev
+```
+
+---
+
+## Build
+
+```bash
+npm run build
+```
+
+---
+
+## Type Checking
+
+```bash
+npm run typecheck
+```
+
+---
+
+## Preview Production Build
+
+```bash
+npm run preview
 ```
 
 ---
@@ -137,25 +168,28 @@ npm run dev
 
 ## Rendering Pipeline
 
-The environment rendering system includes:
+Oceanis includes:
 
-* dynamic atmospheric scattering
 * procedural ocean deformation
+* physically animated wave motion
 * real-time wind visualization
 * adaptive marine simulation
+* dynamic atmospheric scattering
 * cinematic tone mapping
-* procedural night sky rendering
+* procedural star field rendering
 * volumetric environmental transitions
+* dynamic fog rendering
+* weather-reactive lighting system
 
 ---
 
-## Development
+## Development Stack
 
-```bash
-npm run dev
-npm run build
-npm run preview
-```
+* Three.js
+* TypeScript
+* WebGL
+* Vite
+* Open-Meteo APIs
 
 ---
 
