@@ -145,4 +145,3 @@ The environment rendering system includes:
 MIT License
 
 </div>
-````
