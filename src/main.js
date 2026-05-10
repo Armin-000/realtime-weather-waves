@@ -449,7 +449,7 @@ const weatherBox = Object.assign(document.createElement('div'), {
 
 const panelHeader = Object.assign(document.createElement('button'), {
   className: 'weather-panel-header',
-  innerHTML: '<span>Weather & Waves</span>'
+  innerHTML: '<span>OCEANIS</span>'
 })
 
 const panelContent = Object.assign(document.createElement('div'), {
