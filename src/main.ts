@@ -15,11 +15,21 @@ import {
 import './style.css'
 
 type WeatherData = Awaited<ReturnType<typeof getCurrentWeather>>
+
 type SeaState = ReturnType<typeof mapWeatherToSeaState> & {
   windDirection?: number
 }
 
 type DayPhase = 'night' | 'sunrise' | 'day' | 'sunset'
+
+type GpuWaveUniforms = {
+  uWaveTime: { value: number }
+  uWaveIntensity: { value: number }
+  uWaveHeight: { value: number }
+  uWaveFrequency: { value: number }
+  uWaveSpeed: { value: number }
+  uStormIntensity: { value: number }
+}
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -101,53 +111,105 @@ water.userData = {
 
 scene.add(water)
 
-const waterPosition = water.geometry.attributes.position as THREE.BufferAttribute
-const baseWaterPositions = waterPosition.array.slice()
-
-function updatePhysicalWaves(time: number) {
-  const sea = currentSeaState
-  if (!sea) return
-
-  const pos = water.geometry.attributes.position as THREE.BufferAttribute
-  const arr = pos.array
-
-  const intensity = sea.intensity ?? 0.3
-  const realWaveHeight = sea.waveHeight ?? 0.3
-  const storm = sea.stormIntensity ?? 0
-
-  const amplitude =
-    0.7 +
-    realWaveHeight * 1.8 +
-    intensity * 2.2 +
-    storm * 3.2
-
-  const frequency =
-    0.0025 +
-    intensity * 0.0035 +
-    storm * 0.002
-
-  const speed = sea.waveAnimationSpeed ?? 1
-
-  for (let i = 0; i < arr.length; i += 3) {
-    const x = Number(baseWaterPositions[i])
-    const y = Number(baseWaterPositions[i + 1])
-
-    const wave1 = Math.sin(x * frequency + time * speed * 1.5)
-    const wave2 = Math.sin(y * frequency * 1.4 + time * speed * 1.2)
-    const wave3 = Math.sin((x + y) * frequency * 0.8 + time * speed * 1.8)
-    const wave4 = Math.sin((x - y) * frequency * 1.7 + time * speed * 0.9)
-
-    arr[i + 2] =
-      (wave1 * 0.42 +
-        wave2 * 0.32 +
-        wave3 * 0.18 +
-        wave4 * 0.08) *
-      amplitude
-  }
-
-  pos.needsUpdate = true
-  water.geometry.computeVertexNormals()
+// ─── GPU Ocean Waves ─────────────────────────────────────────────────────────
+const gpuWaveUniforms: GpuWaveUniforms = {
+  uWaveTime: { value: 0 },
+  uWaveIntensity: { value: 0.25 },
+  uWaveHeight: { value: 0.35 },
+  uWaveFrequency: { value: 0.003 },
+  uWaveSpeed: { value: 1 },
+  uStormIntensity: { value: 0 }
 }
+
+function installGpuWaveShader(waterObject: Water) {
+  const material = waterObject.material as THREE.ShaderMaterial
+
+  Object.assign(material.uniforms, gpuWaveUniforms)
+
+  material.vertexShader = material.vertexShader
+    .replace(
+      'void main() {',
+      `
+      uniform float uWaveTime;
+      uniform float uWaveIntensity;
+      uniform float uWaveHeight;
+      uniform float uWaveFrequency;
+      uniform float uWaveSpeed;
+      uniform float uStormIntensity;
+
+      float oceanWaveLayer(vec3 p, float frequency, float speed, float phase) {
+        float t = uWaveTime * speed * uWaveSpeed;
+
+        float waveA = sin(p.x * frequency + t + phase);
+        float waveB = sin(p.y * frequency * 1.37 + t * 0.82 - phase);
+        float waveC = sin((p.x + p.y) * frequency * 0.72 + t * 1.28);
+        float waveD = sin((p.x - p.y) * frequency * 1.58 - t * 0.64);
+
+        return
+          waveA * 0.42 +
+          waveB * 0.31 +
+          waveC * 0.18 +
+          waveD * 0.09;
+      }
+
+      float getOceanHeight(vec3 p) {
+        float baseAmplitude =
+          0.45 +
+          uWaveHeight * 1.65 +
+          uWaveIntensity * 2.35 +
+          uStormIntensity * 3.45;
+
+        float frequency =
+          0.0018 +
+          uWaveFrequency +
+          uWaveIntensity * 0.0028 +
+          uStormIntensity * 0.0022;
+
+        float largeWaves = oceanWaveLayer(p, frequency, 1.0, 0.0);
+        float mediumWaves = oceanWaveLayer(p, frequency * 2.1, 1.45, 1.7);
+        float smallChop = oceanWaveLayer(p, frequency * 4.3, 2.25, 3.4);
+
+        float height =
+          largeWaves * 0.72 +
+          mediumWaves * 0.22 +
+          smallChop * 0.06 * (0.4 + uStormIntensity);
+
+        return height * baseAmplitude;
+      }
+
+      void main() {
+      `
+    )
+    .replace(
+      'vec4 mirrorCoord = modelMatrix * vec4( position, 1.0 );',
+      `
+      vec3 displacedPosition = position;
+      displacedPosition.z += getOceanHeight(position);
+
+      vec4 mirrorCoord = modelMatrix * vec4( displacedPosition, 1.0 );
+      `
+    )
+    .replace(
+      'vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );',
+      'vec4 mvPosition = modelViewMatrix * vec4( displacedPosition, 1.0 );'
+    )
+
+  material.needsUpdate = true
+}
+
+function updateGpuWaveUniforms(time: number, seaState: SeaState | null) {
+  gpuWaveUniforms.uWaveTime.value = time
+
+  if (!seaState) return
+
+  gpuWaveUniforms.uWaveIntensity.value = seaState.intensity ?? 0.25
+  gpuWaveUniforms.uWaveHeight.value = seaState.waveHeight ?? 0.35
+  gpuWaveUniforms.uWaveFrequency.value = seaState.waveFrequency ?? 0.003
+  gpuWaveUniforms.uWaveSpeed.value = seaState.waveAnimationSpeed ?? 1
+  gpuWaveUniforms.uStormIntensity.value = seaState.stormIntensity ?? 0
+}
+
+installGpuWaveShader(water)
 
 // ─── Lighting ────────────────────────────────────────────────────────────────
 const sun = new THREE.Vector3()
@@ -544,6 +606,7 @@ async function loadWeather() {
     document.body.dataset.phase = phase
 
     applySeaStateToWater(water, seaState, scene)
+    updateGpuWaveUniforms(performance.now() * 0.001, seaState)
 
     windGroup.rotation.y = -THREE.MathUtils.degToRad(weather.windDirection)
 
@@ -585,7 +648,7 @@ function animate() {
 
   const t = now * 0.001
 
-  updatePhysicalWaves(t)
+  updateGpuWaveUniforms(t, currentSeaState)
 
   if (water.material.uniforms.time) {
     water.material.uniforms.time.value +=
