@@ -1,9 +1,9 @@
 
 <div align="center">
 
-# Realtime Weather Waves
+# Weather Waves
 
-### Cinematic real-time ocean simulation powered by live weather and marine data
+Real-time cinematic ocean simulation driven by live weather and marine conditions.
 
 <br>
 
@@ -13,105 +13,81 @@
 &nbsp;&nbsp;
 <img src="./public/night.png" width="30%" />
 
-<br><br>
-
 </div>
+
+---
+
+## Overview
+
+Weather Waves is a real-time environmental visualization project built with Three.js and WebGL.  
+The application combines live atmospheric and marine data with physically animated ocean surfaces, dynamic lighting and cinematic rendering techniques.
+
+The simulation reacts to real-world conditions including:
+
+- wind speed and direction
+- wave height and marine state
+- sunrise and sunset cycles
+- local time zones
+- atmospheric visibility
 
 ---
 
 ## Features
 
-<table align="center">
-<tr>
-<td align="center" width="33%">
-
-### Live Weather
-
-Real-time weather conditions using the Open-Meteo Forecast API.
-
-</td>
-
-<td align="center" width="33%">
-
-### Marine Data
-
-Dynamic ocean simulation powered by real marine conditions.
-
-</td>
-
-<td align="center" width="33%">
-
-### Day & Night Cycle
-
-Automatic sunrise, daylight, sunset and night transitions.
-
-</td>
-</tr>
-
-<tr>
-<td align="center">
-
-### Wind Simulation
-
-Animated wind visualization reacting to live wind direction and speed.
-
-</td>
-
-<td align="center">
-
-### Interactive Dashboard
-
-Worldwide location search with real-time environmental data.
-
-</td>
-
-<td align="center">
-
-### Atmospheric Rendering
-
-Fog, moonlight, stars and cinematic environmental effects.
-
-</td>
-</tr>
-</table>
-
----
-
-## APIs
-
-<div align="center">
-
-| API | Purpose |
-|:---:|:---:|
-| Open-Meteo Forecast API | Temperature, wind, sunrise and sunset |
-| Open-Meteo Marine API | Wave height, wave direction and swell |
-| Open-Meteo Geocoding API | Location search and coordinates |
-
-</div>
+- Real-time weather integration
+- Dynamic ocean wave simulation
+- Animated wind field rendering
+- Automatic day and night transitions
+- Procedural star field rendering
+- Physically animated water geometry
+- Interactive location search
+- Cinematic lighting and atmospheric effects
+- Marine condition visualization
+- Responsive WebGL rendering pipeline
 
 ---
 
 ## Technologies
 
-<div align="center">
+| Technology | Purpose |
+|---|---|
+| Three.js | 3D rendering engine |
+| WebGL | GPU rendering |
+| JavaScript | Application logic |
+| Vite | Development environment |
+| Open-Meteo APIs | Weather and marine data |
 
-`Three.js` • `WebGL` • `JavaScript` • `Vite` • `Open-Meteo APIs`
+---
 
-</div>
+## APIs
+
+| API | Usage |
+|---|---|
+| Open-Meteo Forecast API | Weather conditions |
+| Open-Meteo Marine API | Wave and marine data |
+| Open-Meteo Geocoding API | Location search |
 
 ---
 
 ## Project Structure
 
 ```txt
-src/
-├── weather/
-│   └── weatherService.js
-├── water/
-│   └── weatherWaves.js
-├── main.js
-├── style.css
-└── index.html
+weather-waves/
+├── public/
+├── src/
+│   ├── assets/
+│   ├── panel/
+│   │   └── panelBuilder.js
+│   ├── water/
+│   │   └── weatherWaves.js
+│   ├── weather/
+│   │   └── weatherService.js
+│   ├── counter.js
+│   ├── main.js
+│   └── style.css
+├── index.html
+├── package.json
+└── README.md
 ```
 
 ---
@@ -127,33 +103,30 @@ npm run dev
 
 ## Recommended Test Locations
 
-<div align="center">
-
-| Environment | Locations |
-|:---:|:---:|
-| Storm & Large Waves | Tórshavn, Reykjavik, Nuuk |
-| Sunset Atmosphere | London, Amsterdam, Brussels |
-| Bright Daylight | Dubai, Singapore, Tokyo |
-| Adriatic Sea | Rijeka, Split, Silba |
-
-</div>
+| Scenario | Locations |
+|---|---|
+| Heavy ocean conditions | Nuuk, Reykjavik, Tórshavn |
+| Calm sea | Split, Zadar, Silba |
+| Night atmosphere | South Pole, McMurdo Station |
+| Sunset rendering | Amsterdam, London, Oslo |
 
 ---
 
-## Planned Features
+## Rendering Pipeline
 
-- Rain particle system
-- Lightning effects
-- Ocean foam simulation
-- Volumetric clouds
-- Advanced Gerstner waves
-- Dynamic storms
-- SSR reflections
+The environment rendering system includes:
+
+- dynamic sky scattering
+- volumetric atmospheric transitions
+- physically animated ocean mesh
+- procedural wave deformation
+- adaptive marine state simulation
+- real-time wind visualization
+- HDR-style tone mapping
 
 ---
 
-<div align="center">
+## License
 
 MIT License
-
-</div>
+````
