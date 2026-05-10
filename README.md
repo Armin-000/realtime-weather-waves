@@ -58,31 +58,70 @@ The environment continuously adapts in real time to incoming weather and marine 
 - Modular rendering system
 
 ---
-## Marine Risk Profile
 
-Oceanis can visualize marine intensity through a calculated risk profile based on live environmental data.
+---
 
-The marine risk score combines:
+## Marine Conditions Dependency Chart
+
+Oceanis analyzes the relationship between atmospheric and marine conditions in real time to determine the current ocean state and environmental intensity.
+
+The system dynamically combines:
 
 - wind speed
-- real wave height
-- wind wave height
-- swell wave height
-- storm intensity
-- weather code severity
+- wave height
+- swell activity
+- wind wave intensity
+- storm severity
+- atmospheric instability
 
-The graph uses the X axis for environmental factors and the Y axis for normalized intensity from 0 to 100.
+to generate a real-time ocean response profile.
 
-Example:
+The chart visualizes how environmental conditions influence the behavior of the simulated ocean surface and atmospheric rendering pipeline.
 
-| Factor | Value |
-|---|---:|
-| Wind Speed | 42 |
-| Wave Height | 68 |
-| Swell Height | 51 |
-| Wind Waves | 57 |
-| Storm Intensity | 74 |
-| Ocean Risk Score | 82 |
+<div align="center">
+
+<img src="public/marine-conditions-chart.png" width="720" />
+
+</div>
+
+### Graph Interpretation
+
+| Axis | Description |
+|---|---|
+| X Axis | Time progression / environmental sampling |
+| Left Y Axis | Ocean wave intensity and wave height |
+| Right Y Axis | Wind speed and marine energy |
+
+### Environmental Relationship Analysis
+
+| Condition | Effect on Ocean Simulation |
+|---|---|
+| Higher wind speed | Faster and more aggressive wave movement |
+| Increased wave height | Larger GPU wave displacement |
+| Storm intensity | Stronger ocean turbulence and atmospheric fog |
+| Swell activity | Additional ocean motion layering |
+| Calm conditions | Reduced deformation and smoother reflections |
+
+### Example Marine Profile
+
+| Month | Wave Height | Wind Speed | Ocean Risk |
+|---|---:|---:|---:|
+| January | 1.2 m | 28 km/h | 42% |
+| February | 0.8 m | 18 km/h | 26% |
+| March | 1.5 m | 34 km/h | 51% |
+| April | 2.1 m | 48 km/h | 74% |
+| May | 0.6 m | 12 km/h | 18% |
+| June | 0.9 m | 20 km/h | 31% |
+| July | 1.3 m | 25 km/h | 39% |
+| August | 2.4 m | 55 km/h | 86% |
+| September | 1.7 m | 38 km/h | 62% |
+| October | 2.8 m | 63 km/h | 94% |
+| November | 2.2 m | 51 km/h | 80% |
+| December | 1.6 m | 36 km/h | 58% |
+
+The dependency system allows Oceanis to produce a more believable and reactive cinematic ocean simulation driven by live environmental conditions.
+
+---
 
 ## GPU Ocean System
 
