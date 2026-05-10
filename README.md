@@ -1,9 +1,12 @@
-
 <div align="center">
 
-# Weather Waves
+<img src="./public/oceanis.svg" width="160" />
 
+<h1>Weather Waves</h1>
+
+<p>
 Real-time cinematic ocean simulation driven by live weather and marine conditions.
+</p>
 
 <br>
 

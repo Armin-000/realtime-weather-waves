@@ -2,12 +2,56 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Primary Meta -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>weather-waves</title>
+    <title>Oceanis</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    <!-- Apple -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Android -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/web-app-manifest-192x192.png"
+    />
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/web-app-manifest-512x512.png"
+    />
+
+    <!-- Theme -->
+    <meta name="theme-color" content="#06131f" />
   </head>
+
   <body>
+    <div id="preloader">
+      <img
+        src="/oceanis.svg"
+        alt="Oceanis"
+        class="preloader-logo"
+      />
+
+      <div class="preloader-text">
+        OCEANIS
+      </div>
+    </div>
+
     <div id="app"></div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

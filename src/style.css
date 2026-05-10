@@ -10,6 +10,78 @@
   --radius-lg: 22px;
 }
 
+/* =========================
+   PRELOADER
+========================= */
+
+#preloader {
+  position: fixed;
+  inset: 0;
+
+  z-index: 999999;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+
+  background:
+    radial-gradient(
+      circle at top,
+      #10263b 0%,
+      #08111c 45%,
+      #03070c 100%
+    );
+
+  transition:
+    opacity 1s ease,
+    visibility 1s ease;
+}
+
+#preloader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-logo {
+  width: 195px;
+  height: 195px;
+
+  object-fit: contain;
+
+  filter:
+    brightness(0) invert(1)
+    drop-shadow(0 0 14px rgba(120, 200, 255, 0.45))
+    drop-shadow(0 0 30px rgba(120, 200, 255, 0.2));
+
+  animation: logoGlow 4s ease-in-out infinite;
+}
+
+.preloader-text {
+  color: rgba(255,255,255,0.88);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  letter-spacing: 0.45em;
+}
+
+@keyframes logoGlow {
+  0% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.7;
+  }
+}
+
 body {
   margin: 0;
   overflow: hidden;
