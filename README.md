@@ -1,22 +1,6 @@
-
 <div align="center">
 
-<picture>
-  <source
-    media="(prefers-color-scheme: dark)"
-    srcset="public/oceanis-light.svg"
-  />
-
-  <source
-    media="(prefers-color-scheme: light)"
-    srcset="public/oceanis-dark.svg"
-  />
-
-  <img
-    src="public/oceanis-dark.svg"
-    width="160"
-  />
-</picture>
+<img src="public/github.svg" width="160" />
 
 # Oceanis
 
