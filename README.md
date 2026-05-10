@@ -49,6 +49,8 @@ The simulation reacts to real-world conditions including:
 
 ## Technologies
 
+<div align="center">
+
 | Technology | Purpose |
 |---|---|
 | Three.js | 3D rendering engine |
@@ -57,15 +59,21 @@ The simulation reacts to real-world conditions including:
 | Vite | Development environment |
 | Open-Meteo APIs | Weather and marine data |
 
+</div>
+
 ---
 
 ## APIs
+
+<div align="center">
 
 | API | Usage |
 |---|---|
 | Open-Meteo Forecast API | Weather conditions |
 | Open-Meteo Marine API | Wave and marine data |
 | Open-Meteo Geocoding API | Location search |
+
+</div>
 
 ---
 
@@ -103,12 +111,16 @@ npm run dev
 
 ## Recommended Test Locations
 
+<div align="center">
+
 | Scenario | Locations |
 |---|---|
 | Heavy ocean conditions | Nuuk, Reykjavik, Tórshavn |
 | Calm sea | Split, Zadar, Silba |
 | Night atmosphere | South Pole, McMurdo Station |
 | Sunset rendering | Amsterdam, London, Oslo |
+
+</div>
 
 ---
 
@@ -128,5 +140,9 @@ The environment rendering system includes:
 
 ## License
 
+<div align="center">
+
 MIT License
+
+</div>
 ````
