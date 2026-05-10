@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Water } from 'three/examples/jsm/objects/Water.js'
 import { Sky } from 'three/examples/jsm/objects/Sky.js'
 import { getCurrentWeather } from './weather/weatherService.js'
-import { mapWindToSeaState, applySeaStateToWater } from './water/weatherWaves.js'
+import { mapWeatherToSeaState, applySeaStateToWater } from './water/weatherWaves.js'
 import {
   buildWeatherPanel,
   buildLoadingPanel,
@@ -18,15 +18,33 @@ import './style.css'
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-Object.assign(renderer, { toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 0.50 })
+Object.assign(renderer, {
+  toneMapping: THREE.ACESFilmicToneMapping,
+  toneMappingExposure: 0.50
+})
+
 document.querySelector('#app').appendChild(renderer.domElement)
 
-const scene  = new THREE.Scene()
-const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 20000)
-camera.position.set(0, 5, 28)
+const scene = new THREE.Scene()
+
+const camera = new THREE.PerspectiveCamera(
+  55,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  20000
+)
+
+camera.position.set(0, 61, 220)
 
 const controls = new OrbitControls(camera, renderer.domElement)
-Object.assign(controls, { enableDamping: true, minDistance: 8, maxDistance: 120, maxPolarAngle: Math.PI * 0.48 })
+
+Object.assign(controls, {
+  enableDamping: true,
+  minDistance: 8,
+  maxDistance: 320,
+  maxPolarAngle: Math.PI * 0.48
+})
+
 controls.target.set(0, 0, 0)
 controls.update()
 
@@ -43,10 +61,14 @@ su.mieDirectionalG.value = 0.78
 
 const waterNormals = new THREE.TextureLoader().load(
   'https://threejs.org/examples/textures/waternormals.jpg',
-  t => { t.wrapS = t.wrapT = THREE.RepeatWrapping }
+  texture => {
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+  }
 )
 
-const water = new Water(new THREE.PlaneGeometry(10000, 10000), {
+const waterGeometry = new THREE.PlaneGeometry(10000, 10000, 220, 220)
+
+const water = new Water(waterGeometry, {
   textureWidth: 1024,
   textureHeight: 1024,
   waterNormals,
@@ -58,18 +80,73 @@ const water = new Water(new THREE.PlaneGeometry(10000, 10000), {
 })
 
 water.rotation.x = -Math.PI / 2
-water.userData = { waveSpeed: 0.65, choppiness: 0.55, windDirection: 315 }
+
+water.userData = {
+  waveSpeed: 0.65,
+  choppiness: 0.55,
+  windDirection: 315,
+  stormIntensity: 0
+}
+
 scene.add(water)
 
-// ─── Lighting ────────────────────────────────────────────────────────────────
-const sun       = new THREE.Vector3()
-const pmrem     = new THREE.PMREMGenerator(renderer)
-let   envTarget = null
+const waterPosition = water.geometry.attributes.position
+const baseWaterPositions = waterPosition.array.slice()
 
-const dirLight     = new THREE.DirectionalLight(0xffffff, 2)
-const moonLight    = new THREE.DirectionalLight(0xc7ddff, 0)
+function updatePhysicalWaves(time) {
+  const sea = currentSeaState
+  if (!sea) return
+
+  const pos = water.geometry.attributes.position
+  const arr = pos.array
+
+  const intensity = sea.intensity ?? 0.3
+  const realWaveHeight = sea.waveHeight ?? 0.3
+  const storm = sea.stormIntensity ?? 0
+
+  const amplitude =
+    0.7 +
+    realWaveHeight * 1.8 +
+    intensity * 2.2 +
+    storm * 3.2
+
+  const frequency =
+    0.0025 +
+    intensity * 0.0035 +
+    storm * 0.002
+
+  const speed = sea.waveAnimationSpeed ?? 1
+
+  for (let i = 0; i < arr.length; i += 3) {
+    const x = baseWaterPositions[i]
+    const y = baseWaterPositions[i + 1]
+
+    const wave1 = Math.sin(x * frequency + time * speed * 1.5)
+    const wave2 = Math.sin(y * frequency * 1.4 + time * speed * 1.2)
+    const wave3 = Math.sin((x + y) * frequency * 0.8 + time * speed * 1.8)
+    const wave4 = Math.sin((x - y) * frequency * 1.7 + time * speed * 0.9)
+
+    arr[i + 2] =
+      (wave1 * 0.42 +
+        wave2 * 0.32 +
+        wave3 * 0.18 +
+        wave4 * 0.08) *
+      amplitude
+  }
+
+  pos.needsUpdate = true
+  water.geometry.computeVertexNormals()
+}
+
+// ─── Lighting ────────────────────────────────────────────────────────────────
+const sun = new THREE.Vector3()
+const pmrem = new THREE.PMREMGenerator(renderer)
+let envTarget = null
+
+const dirLight = new THREE.DirectionalLight(0xffffff, 2)
+const moonLight = new THREE.DirectionalLight(0xc7ddff, 0)
 const ambientNight = new THREE.AmbientLight(0x7da7d9, 0)
-const moonFill     = new THREE.HemisphereLight(0x9fc7ff, 0x020817, 0)
+const moonFill = new THREE.HemisphereLight(0x9fc7ff, 0x020817, 0)
 
 moonLight.position.set(-40, 70, -80)
 scene.add(dirLight, moonLight, ambientNight, moonFill)
@@ -96,12 +173,13 @@ updateSun()
 const nightGroup = new THREE.Group()
 scene.add(nightGroup)
 
-const starPos = new Float32Array(900 * 3)
+const STAR_COUNT = 2500
+const starPos = new Float32Array(STAR_COUNT * 3)
 
-for (let i = 0; i < 900; i++) {
-  starPos[i * 3]     = (Math.random() - 0.5) * 700
-  starPos[i * 3 + 1] = 35 + Math.random() * 240
-  starPos[i * 3 + 2] = -100 - Math.random() * 550
+for (let i = 0; i < STAR_COUNT; i++) {
+  starPos[i * 3] = (Math.random() - 0.5) * 2200
+  starPos[i * 3 + 1] = 80 + Math.random() * 900
+  starPos[i * 3 + 2] = (Math.random() - 0.5) * 2200
 }
 
 const starGeo = new THREE.BufferGeometry()
@@ -123,23 +201,23 @@ const windGroup = new THREE.Group()
 scene.add(windGroup)
 
 function createWindTexture() {
-  const c = Object.assign(document.createElement('canvas'), {
+  const canvas = Object.assign(document.createElement('canvas'), {
     width: 512,
     height: 64
   })
 
-  const ctx = c.getContext('2d')
-  const g   = ctx.createLinearGradient(0, 0, 512, 0)
+  const ctx = canvas.getContext('2d')
+  const gradient = ctx.createLinearGradient(0, 0, 512, 0)
 
   ;[
-    [0,    'rgba(255,255,255,0)'],
+    [0, 'rgba(255,255,255,0)'],
     [0.18, 'rgba(255,255,255,0.18)'],
-    [0.5,  'rgba(255,255,255,0.75)'],
+    [0.5, 'rgba(255,255,255,0.75)'],
     [0.82, 'rgba(255,255,255,0.18)'],
-    [1,    'rgba(255,255,255,0)']
-  ].forEach(([s, c]) => g.addColorStop(s, c))
+    [1, 'rgba(255,255,255,0)']
+  ].forEach(([stop, color]) => gradient.addColorStop(stop, color))
 
-  ctx.fillStyle = g
+  ctx.fillStyle = gradient
 
   for (let i = 0; i < 7; i++) {
     ctx.beginPath()
@@ -155,14 +233,17 @@ function createWindTexture() {
     ctx.fill()
   }
 
-  return new THREE.CanvasTexture(c)
+  return new THREE.CanvasTexture(canvas)
 }
 
 const windTex = createWindTexture()
 
-for (let i = 0; i < 55; i++) {
+for (let i = 0; i < 180; i++) {
   const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(9 + Math.random() * 16, 0.45 + Math.random() * 1.1),
+    new THREE.PlaneGeometry(
+      18 + Math.random() * 32,
+      0.8 + Math.random() * 1.8
+    ),
     new THREE.MeshBasicMaterial({
       map: windTex,
       color: 0x9fc7ff,
@@ -177,12 +258,16 @@ for (let i = 0; i < 55; i++) {
   const baseY = 3 + Math.random() * 18
 
   mesh.position.set(
-    (Math.random() - 0.5) * 95,
+    (Math.random() - 0.5) * 900,
     baseY,
-    (Math.random() - 0.5) * 70
+    (Math.random() - 0.5) * 700
   )
 
-  mesh.rotation.set(0, Math.random() * 0.35, (Math.random() - 0.5) * 0.08)
+  mesh.rotation.set(
+    0,
+    Math.random() * 0.35,
+    (Math.random() - 0.5) * 0.08
+  )
 
   mesh.userData = {
     speed: 0.05 + Math.random() * 0.12,
@@ -250,11 +335,11 @@ const PHASES = {
 }
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let currentDayPhase    = 'day'
+let currentDayPhase = 'day'
 let currentWeatherData = null
-let currentSeaState    = null
-let isWeatherLoading   = false
-let selectedPlace      = 'Rijeka'
+let currentSeaState = null
+let isWeatherLoading = false
+let selectedPlace = 'Rijeka'
 
 // ─── Time helpers ─────────────────────────────────────────────────────────────
 const getLocalDate = () =>
@@ -270,10 +355,30 @@ const getLocalTimeStr = () =>
     second: '2-digit'
   })
 
-function getDayPhase(w) {
-  const now  = getLocalDate()
-  const rise = new Date(w.sunrise)
-  const set  = new Date(w.sunset)
+function getDayPhase(weather) {
+  const now = getLocalDate()
+  const rise = new Date(weather.sunrise)
+  const set = new Date(weather.sunset)
+
+  const riseTime = rise.getTime()
+  const setTime = set.getTime()
+
+  // Polar fallback: Open-Meteo sometimes returns 12:00 AM / 12:00 AM
+  if (
+    !Number.isFinite(riseTime) ||
+    !Number.isFinite(setTime) ||
+    riseTime === setTime
+  ) {
+    const hour = Number(
+      new Date().toLocaleString('en-US', {
+        timeZone: weather.timezone || 'Europe/Zagreb',
+        hour: '2-digit',
+        hour12: false
+      })
+    )
+
+    return hour >= 20 || hour <= 5 ? 'night' : 'day'
+  }
 
   if (now < new Date(+rise - 45 * 60000)) return 'night'
   if (now <= new Date(+rise + 45 * 60000)) return 'sunrise'
@@ -283,12 +388,20 @@ function getDayPhase(w) {
   return 'night'
 }
 
-function getSunElevation(w) {
-  const now  = getLocalDate()
-  const rise = new Date(w.sunrise)
-  const set  = new Date(w.sunset)
+function getSunElevation(weather) {
+  const now = getLocalDate()
+  const rise = new Date(weather.sunrise)
+  const set = new Date(weather.sunset)
 
-  if (now < rise || now > set) return -8
+  if (
+    !Number.isFinite(rise.getTime()) ||
+    !Number.isFinite(set.getTime()) ||
+    rise.getTime() === set.getTime() ||
+    now < rise ||
+    now > set
+  ) {
+    return -8
+  }
 
   return Math.sin(((now - rise) / (set - rise)) * Math.PI) * 45
 }
@@ -297,31 +410,36 @@ function getSunElevation(w) {
 function applyDayPhase(phase, weather) {
   currentDayPhase = phase
 
-  const s = PHASES[phase] ?? PHASES.day
+  const phaseSettings = PHASES[phase] ?? PHASES.day
 
-  renderer.toneMappingExposure = s.exp
+  renderer.toneMappingExposure = phaseSettings.exp
 
-  su.turbidity.value      = s.turb
-  su.rayleigh.value       = s.ray
-  su.mieCoefficient.value = s.mie
+  su.turbidity.value = phaseSettings.turb
+  su.rayleigh.value = phaseSettings.ray
+  su.mieCoefficient.value = phaseSettings.mie
 
   const elevation = THREE.MathUtils.clamp(
-    weather ? getSunElevation(weather) : s.el,
+    weather ? getSunElevation(weather) : phaseSettings.el,
     -8,
-    s.el
+    phaseSettings.el
   )
 
-  updateSun(elevation, s.az)
+  updateSun(elevation, phaseSettings.az)
 
-  dirLight.intensity     = s.lit
-  moonLight.intensity    = s.ml
-  ambientNight.intensity = s.am
-  moonFill.intensity     = phase === 'night' ? 0.55 : 0
+  dirLight.intensity = phaseSettings.lit
+  moonLight.intensity = phaseSettings.ml
+  ambientNight.intensity = phaseSettings.am
+  moonFill.intensity = phase === 'night' ? 0.55 : 0
 
-  windGroup.children.forEach(r => r.material.color.setHex(s.wc))
+  windGroup.children.forEach(ribbon => {
+    ribbon.material.color.setHex(phaseSettings.wc)
+  })
 
-  nightGroup.visible = phase === 'night'
-  starMat.opacity    = phase === 'night' ? 0.95 : 0
+  const showStars = phase === 'night' || phase === 'sunset'
+
+  nightGroup.visible = showStars
+  starMat.opacity = phase === 'night' ? 0.95 : 0.55
+  starMat.size = phase === 'night' ? 1.25 : 0.85
 }
 
 // ─── UI / Panel ───────────────────────────────────────────────────────────────
@@ -349,9 +467,10 @@ const _setPanel = (html, loading = false, onComplete = null) =>
   setPanel(weatherBox, panelContent, html, loading, onComplete)
 
 function bindPanelSearch() {
-  bindSearch(v => {
+  bindSearch(value => {
     if (isWeatherLoading) return
-    selectedPlace = v
+
+    selectedPlace = value
     loadWeather()
   })
 }
@@ -363,8 +482,8 @@ async function loadWeather() {
   isWeatherLoading = true
 
   _setPanel(buildLoadingPanel(selectedPlace), true, () => {
-    bindSearch(v => {
-      selectedPlace = v
+    bindSearch(value => {
+      selectedPlace = value
       isWeatherLoading = false
       loadWeather()
     })
@@ -376,8 +495,8 @@ async function loadWeather() {
     currentWeatherData = weather
     selectedPlace = weather.place
 
-    const seaState = mapWindToSeaState(weather.windSpeed, weather.waveHeight)
-    const phase    = getDayPhase(weather)
+    const seaState = mapWeatherToSeaState(weather)
+    const phase = getDayPhase(weather)
 
     seaState.windDirection = weather.windDirection
     currentSeaState = seaState
@@ -390,16 +509,22 @@ async function loadWeather() {
     windGroup.rotation.y = -THREE.MathUtils.degToRad(weather.windDirection)
 
     setTimeout(() => {
-      _setPanel(buildWeatherPanel(weather, seaState, phase, getLocalTimeStr), false, bindPanelSearch)
+      _setPanel(
+        buildWeatherPanel(weather, seaState, phase, getLocalTimeStr),
+        false,
+        bindPanelSearch
+      )
     }, 260)
-
   } catch (err) {
     console.error(err)
 
     setTimeout(() => {
-      _setPanel(buildErrorPanel(selectedPlace, err.message), false, bindPanelSearch)
+      _setPanel(
+        buildErrorPanel(selectedPlace, err.message),
+        false,
+        bindPanelSearch
+      )
     }, 260)
-
   } finally {
     setTimeout(() => {
       weatherBox.classList.remove('is-loading')
@@ -414,46 +539,56 @@ let lastTime = performance.now()
 function animate() {
   requestAnimationFrame(animate)
 
-  const now   = performance.now()
+  const now = performance.now()
   const delta = (now - lastTime) / 1000
-  lastTime    = now
-  const t     = now * 0.001
+  lastTime = now
 
-  // Water
+  const t = now * 0.001
+
+  updatePhysicalWaves(t)
+
   if (water.material.uniforms.time) {
     water.material.uniforms.time.value +=
       delta * (currentSeaState?.waveAnimationSpeed ?? water.userData.waveSpeed)
   }
 
-  // Wind
-  const strength   = currentSeaState?.intensity ?? 0.25
+  const strength = currentSeaState?.intensity ?? 0.25
+  const storm = currentSeaState?.stormIntensity ?? 0
+
   const windFactor = THREE.MathUtils.clamp(
-    (currentWeatherData?.windSpeed ?? 5) / 60,
+    ((currentWeatherData?.windSpeed ?? 5) / 60) + storm * 0.45,
     0.08,
-    1.8
+    2.4
   )
 
-  windGroup.children.forEach(r => {
-    const { floatOffset: fo, baseY, scaleBase, speed } = r.userData
+  windGroup.children.forEach(ribbon => {
+    const { floatOffset, baseY, scaleBase, speed } = ribbon.userData
 
-    r.material.opacity = 0.08 + strength * 0.32 + Math.sin(t * 2 + fo) * 0.04
-    r.position.x += speed * windFactor * 24
-    r.position.y  = baseY + Math.sin(t * 1.4 + fo) * 0.45
+    ribbon.material.opacity =
+      0.08 +
+      strength * 0.32 +
+      storm * 0.18 +
+      Math.sin(t * 2 + floatOffset) * 0.04
 
-    r.scale.set(
-      scaleBase + Math.sin(t * 1.2 + fo) * 0.08,
-      0.85 + Math.sin(t * 1.8 + fo) * 0.12,
+    ribbon.position.x += speed * windFactor * 24
+
+    ribbon.position.y =
+      baseY +
+      Math.sin(t * 1.4 + floatOffset) * (0.45 + storm * 0.35)
+
+    ribbon.scale.set(
+      scaleBase + Math.sin(t * 1.2 + floatOffset) * (0.08 + storm * 0.05),
+      0.85 + Math.sin(t * 1.8 + floatOffset) * (0.12 + storm * 0.08),
       1
     )
 
-    if (r.position.x > 55) {
-      r.position.x = -55
-      r.position.y = r.userData.baseY = 3 + Math.random() * 18
-      r.position.z = (Math.random() - 0.5) * 70
+    if (ribbon.position.x > 450) {
+      ribbon.position.x = -450
+      ribbon.position.y = ribbon.userData.baseY = 3 + Math.random() * 18
+      ribbon.position.z = (Math.random() - 0.5) * 700
     }
   })
 
-  // Night sky
   if (nightGroup.visible) {
     stars.rotation.y += delta * 0.01
   }
@@ -467,7 +602,10 @@ animate()
 // ─── Intervals & resize ───────────────────────────────────────────────────────
 setInterval(() => {
   const timeEl = document.querySelector('#live-time')
-  if (timeEl) timeEl.textContent = getLocalTimeStr()
+
+  if (timeEl) {
+    timeEl.textContent = getLocalTimeStr()
+  }
 
   if (!currentWeatherData) return
 
@@ -478,8 +616,11 @@ setInterval(() => {
   applyDayPhase(phase, currentWeatherData)
   document.body.dataset.phase = phase
 
-  const lbl = document.querySelector('#day-phase-label')
-  if (lbl) lbl.textContent = PHASE_LABELS[phase]
+  const label = document.querySelector('#day-phase-label')
+
+  if (label) {
+    label.textContent = PHASE_LABELS[phase]
+  }
 }, 1000)
 
 setInterval(loadWeather, 10 * 60 * 1000)
