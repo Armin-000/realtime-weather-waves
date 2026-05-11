@@ -5,8 +5,6 @@
 
 # Oceanis
 
-<div align="center">
-
 [![Live Demo](https://img.shields.io/badge/LIVE_DEMO-Oceanis-0a84ff?style=for-the-badge&logo=vercel&logoColor=white)](https://realtime-weather-waves.vercel.app/)
 
 [![Three.js](https://img.shields.io/badge/Three.js-WebGL-black?style=for-the-badge&logo=three.js)](https://threejs.org/)
