@@ -19,11 +19,11 @@ Real-time cinematic ocean and atmosphere simulation driven by live weather and m
 
 <br>
 
-<img src="public/day.png" width="30%" />
+<img src="public/day.gif" width="30%" />
 &nbsp;&nbsp;
-<img src="public/sunset.png" width="30%" />
+<img src="public/Sunrise.gif" width="30%" />
 &nbsp;&nbsp;
-<img src="public/night.png" width="30%" />
+<img src="public/night.gif" width="30%" />
 
 </div>
 
