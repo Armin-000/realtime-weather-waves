@@ -15,7 +15,9 @@
 
 </div>
 
-> Real-time cinematic ocean and atmosphere simulation driven by live weather and marine conditions.
+<p align="center">
+  <i>Real-time cinematic ocean and atmosphere simulation driven by live weather and marine conditions.</i>
+</p>
 
 <br>
 
