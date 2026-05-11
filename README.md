@@ -5,6 +5,16 @@
 
 # Oceanis
 
+<div align="center">
+
+[![Live Demo](https://img.shields.io/badge/LIVE_DEMO-Oceanis-0a84ff?style=for-the-badge&logo=vercel&logoColor=white)](https://realtime-weather-waves.vercel.app/)
+
+[![Three.js](https://img.shields.io/badge/Three.js-WebGL-black?style=for-the-badge&logo=three.js)](https://threejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Architecture-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![WebGL](https://img.shields.io/badge/WebGL-GPU_Rendering-red?style=for-the-badge)]()
+
+</div>
+
 Real-time cinematic ocean and atmosphere simulation driven by live weather and marine conditions.
 
 <br>
