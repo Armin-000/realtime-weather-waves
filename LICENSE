@@ -1,21 +1,41 @@
-Oceanis Non-Commercial License
+
+# Oceanis Non-Commercial License
 
 Copyright (c) 2026 Armin Lišić
 
 All rights reserved.
 
-This project, including its source code, shaders, assets,
-visual systems, rendering pipeline, documentation and design,
-may not be copied, modified, distributed, sublicensed,
-sold, or used commercially without explicit written permission
-from the author.
-
-Unauthorized commercial usage is strictly prohibited.
+Oceanis and all associated source code, shaders, rendering systems,
+visual assets, UI systems, documentation, architecture, and design elements
+are proprietary and protected under this license.
 
 Permission is granted for:
 
 - personal learning
-- educational viewing
+- educational use
 - non-commercial research
+- private modification for non-commercial purposes
 
-The Software is provided "as is", without warranty of any kind.
+You may NOT:
+
+- use the project commercially
+- sell or redistribute the project
+- sublicense the software
+- include Oceanis in paid products or services
+- commercially distribute modified versions
+- reuse Oceanis branding, visuals, shaders, or rendering systems
+  in commercial applications
+
+Any commercial usage requires explicit written permission
+from the author.
+
+Unauthorized commercial usage is strictly prohibited.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+AND NONINFRINGEMENT.
+
+Author:
+Armin Lišić
+```

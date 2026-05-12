@@ -29,7 +29,6 @@
 
 </div>
 
-
 <p align="center">
   🌊 <b>Live Experience</b><br><br>
   <a href="https://realtime-weather-waves.vercel.app/">
@@ -37,24 +36,28 @@
   </a>
 </p>
 
+---
 
 ## Overview
 
-Oceanis is a cinematic real-time ocean and atmospheric simulation built with Three.js, WebGL and TypeScript.
+Oceanis is a cinematic real-time ocean and atmosphere simulation built with Three.js, WebGL and TypeScript.
 
-The project combines live weather and marine conditions with GPU accelerated ocean rendering, physically animated wave deformation and procedural environmental effects.
+The project combines live weather data, marine conditions, GPU accelerated rendering and atmospheric environmental systems to create an immersive real-time ocean simulation.
 
-Oceanis dynamically reacts to real-world environmental conditions including:
+Oceanis is designed as an atmospheric visualization experience rather than a traditional weather dashboard.
 
-- wind speed and wind direction
+The environment dynamically reacts to:
+
+- wind speed and direction
 - marine wave intensity
 - storm conditions
-- sunrise and sunset cycles
-- local timezone changes
 - atmospheric visibility
-- dynamic ocean state
+- sunrise and sunset cycles
+- timezone changes
+- environmental lighting
+- dynamic ocean states
 
-The environment continuously adapts in real time to incoming weather and marine API data.
+The scene continuously adapts in real time using live Open-Meteo weather and marine APIs.
 
 ---
 
@@ -64,17 +67,44 @@ The environment continuously adapts in real time to incoming weather and marine 
 - Real-time marine condition simulation
 - GPU accelerated ocean rendering
 - Physically animated 3D ocean waves
-- Custom vertex shader wave deformation
-- Weather-reactive GPU wave simulation
-- Dynamic wind field visualization
+- Custom GPU vertex shader deformation
+- Weather-reactive wave simulation
+- Cinematic atmosphere rendering
+- Dynamic wind visualization system
 - Automatic day and night transitions
 - Procedural night sky rendering
-- Interactive location search
-- Cinematic atmosphere rendering
+- Floating cinematic compass HUD
+- Smart location autocomplete search
+- Expandable compact control panel
+- Glassmorphism environmental interface
 - Dynamic fog and lighting system
 - Responsive WebGL rendering pipeline
-- TypeScript-based architecture
-- Modular rendering system
+- Modular TypeScript architecture
+- Atmospheric environmental transitions
+
+---
+
+## Cinematic HUD System
+
+Oceanis uses a modular cinematic HUD interface instead of a traditional dashboard UI.
+
+The interface consists of:
+
+- compact expandable weather panel
+- floating compass overlay
+- atmospheric glassmorphism styling
+- contextual marine visualization
+- smart location autocomplete system
+
+The HUD is intentionally designed to remain:
+
+- cinematic
+- immersive
+- non-intrusive
+- responsive
+- atmospheric
+
+The compass system is separated from the main panel to preserve immersion and maximize viewport visibility.
 
 ---
 
@@ -101,7 +131,7 @@ The rendering pipeline combines:
 - CPU-side environmental logic
 - GPU-side vertex displacement
 - shader-based wave animation
-- dynamic atmospheric rendering
+- atmospheric rendering systems
 
 This allows Oceanis to render large-scale animated ocean surfaces efficiently in real time.
 
@@ -132,7 +162,7 @@ This allows Oceanis to render large-scale animated ocean surfaces efficiently in
 |---|---|
 | Open-Meteo Forecast API | Weather conditions |
 | Open-Meteo Marine API | Marine and wave data |
-| Open-Meteo Geocoding API | Location search |
+| Open-Meteo Geocoding API | Smart location search |
 
 </div>
 
@@ -155,7 +185,7 @@ The rendering system separates:
 - weather data acquisition
 - marine state simulation
 - GPU wave rendering
-- UI rendering
+- HUD rendering
 - atmospheric lighting
 - environmental transitions
 
@@ -169,9 +199,9 @@ oceanis/
 │   ├── github.svg
 │   ├── oceanis-dark.svg
 │   ├── oceanis-light.svg
-│   ├── day.png
-│   ├── sunset.png
-│   └── night.png
+│   ├── day.gif
+│   ├── Sunrise.gif
+│   └── night.gif
 │
 ├── src/
 │   ├── panel/
@@ -316,7 +346,7 @@ The system uses:
 * transparent additive planes
 * animated directional movement
 * weather-reactive speed scaling
-* dynamic atmospheric blending
+* atmospheric blending
 
 ---
 
@@ -347,8 +377,6 @@ The ocean simulation offloads wave deformation directly to the GPU shader pipeli
 
 ## Future Improvements
 
-Possible future upgrades include:
-
 ### Visual
 
 * rain particle systems
@@ -358,6 +386,8 @@ Possible future upgrades include:
 * spray particles
 * SSR reflections
 * cinematic post-processing
+* underwater fog
+* atmospheric haze
 
 ### Physics
 
@@ -376,6 +406,11 @@ Possible future upgrades include:
 * swell graphs
 * weather icons
 * historical weather playback
+* animated marine minimap
+* cinematic waypoint markers
+* advanced atmospheric HUD
+* ocean telemetry overlay
+* fullscreen immersive mode
 
 ---
 
@@ -390,5 +425,3 @@ without explicit written permission from the author.
 © 2026 Armin Lišić
 
 ---
-
-</div>
