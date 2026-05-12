@@ -785,7 +785,7 @@ body[data-phase='day'] .weather-box {
   right: 24px;
   bottom: 24px;
 
-  z-index: 20;
+  z-index: 9;
 
   display: grid;
   place-items: center;
