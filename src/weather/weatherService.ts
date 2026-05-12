@@ -6,6 +6,30 @@ export const degreesToCompass = deg => {
   return COMPASS[Math.round(((n % 360) + 360) % 360 / 45) % 8]
 }
 
+export async function searchPlaces(query) {
+  const value = query.trim()
+
+  if (value.length < 1) return []
+
+  const res = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(value)}&count=6&language=en&format=json`
+  )
+
+  if (!res.ok) throw new Error('Location suggestions failed.')
+
+  const data = await res.json()
+
+  return (data.results || []).map(place => ({
+    id: place.id,
+    name: place.name,
+    country: place.country,
+    admin1: place.admin1 || '',
+    latitude: place.latitude,
+    longitude: place.longitude,
+    timezone: place.timezone
+  }))
+}
+
 export async function geocodePlace(query) {
   const res  = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`)
   if (!res.ok) throw new Error('City search failed.')

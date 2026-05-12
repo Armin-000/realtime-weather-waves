@@ -2,9 +2,17 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Water } from 'three/examples/jsm/objects/Water.js'
 import { Sky } from 'three/examples/jsm/objects/Sky.js'
-import { getCurrentWeather } from './weather/weatherService'
+import { getCurrentWeather, searchPlaces } from './weather/weatherService'
 import { mapWeatherToSeaState, applySeaStateToWater } from './water/weatherWaves'
-import { buildWeatherPanel, buildLoadingPanel, buildErrorPanel, setPanel, bindSearch, PHASE_LABELS } from './panel/panelBuilder'
+import {
+  buildWeatherPanel,
+  buildCompassHud,
+  buildLoadingPanel,
+  buildErrorPanel,
+  setPanel,
+  bindSearch,
+  PHASE_LABELS
+} from './panel/panelBuilder'
 import './style.css'
 
 type WeatherData = Awaited<ReturnType<typeof getCurrentWeather>>
@@ -299,25 +307,149 @@ function applyDayPhase(phase: DayPhase, weather: WeatherData | null) {
 const weatherBox    = Object.assign(document.createElement('div'),    { className: 'weather-box' })
 const panelHeader   = Object.assign(document.createElement('button'), { className: 'weather-panel-header', innerHTML: '<span>OCEANIS</span>' })
 const panelContent  = Object.assign(document.createElement('div'),    { className: 'weather-panel-content' })
+const compassHud    = Object.assign(document.createElement('div'),    { className: 'floating-compass-hud' })
 
 weatherBox.append(panelHeader, panelContent)
-document.body.appendChild(weatherBox)
+document.body.append(weatherBox, compassHud)
+
 panelHeader.addEventListener('click', () => weatherBox.classList.toggle('is-collapsed'))
 
 const _setPanel = (html: string, loading = false, onComplete: (() => void) | null = null) =>
   setPanel(weatherBox, panelContent, html, loading, onComplete)
 
-const bindPanelSearch = () =>
-  bindSearch((value: string) => { if (!isWeatherLoading) { selectedPlace = value; loadWeather() } })
+const escapeHtml = (value: string) =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+
+function bindDetailsToggle() {
+  const toggle = document.querySelector<HTMLButtonElement>('#details-toggle')
+  const details = document.querySelector<HTMLDivElement>('#weather-details')
+
+  if (!toggle || !details) return
+
+  toggle.addEventListener('click', () => {
+    const isOpen = details.classList.toggle('is-open')
+    toggle.classList.toggle('is-open', isOpen)
+
+    const icon = toggle.querySelector('strong')
+    if (icon) icon.textContent = isOpen ? '−' : '+'
+  })
+}
+
+function bindPanelAutocompleteSearch() {
+  bindSearch((value: string) => {
+    if (!isWeatherLoading) {
+      selectedPlace = value
+      loadWeather()
+    }
+  })
+
+  bindDetailsToggle()
+
+  const input = document.querySelector<HTMLInputElement>('#city-input')
+  const suggestionsBox = document.querySelector<HTMLDivElement>('#city-suggestions')
+
+  if (!input || !suggestionsBox) return
+
+  let debounceTimer: number | null = null
+  let requestId = 0
+
+  const closeSuggestions = () => {
+    suggestionsBox.innerHTML = ''
+    suggestionsBox.classList.remove('is-visible')
+  }
+
+  const renderSuggestions = (places: Awaited<ReturnType<typeof searchPlaces>>) => {
+    if (!places.length) {
+      closeSuggestions()
+      return
+    }
+
+    suggestionsBox.innerHTML = places
+      .map(place => {
+        const title = escapeHtml(place.name)
+        const country = escapeHtml(place.country || '')
+        const admin = place.admin1 ? ` · ${escapeHtml(place.admin1)}` : ''
+        const value = escapeHtml(place.name)
+
+        return `
+          <button class="city-suggestion" type="button" data-place="${value}">
+            <span>${title}</span>
+            <small>${country}${admin}</small>
+          </button>
+        `
+      })
+      .join('')
+
+    suggestionsBox.classList.add('is-visible')
+
+    suggestionsBox.querySelectorAll<HTMLButtonElement>('.city-suggestion').forEach(button => {
+      button.addEventListener('click', () => {
+        const place = button.dataset.place
+
+        if (!place || isWeatherLoading) return
+
+        input.value = place
+        selectedPlace = place
+        closeSuggestions()
+        loadWeather()
+      })
+    })
+  }
+
+  input.addEventListener('input', () => {
+    const value = input.value.trim()
+
+    if (debounceTimer) {
+      window.clearTimeout(debounceTimer)
+    }
+
+    if (value.length < 1) {
+      closeSuggestions()
+      return
+    }
+
+    debounceTimer = window.setTimeout(async () => {
+      const currentRequest = ++requestId
+
+      try {
+        const places = await searchPlaces(value)
+
+        if (currentRequest !== requestId) return
+
+        renderSuggestions(places)
+      } catch (error) {
+        console.warn('Autocomplete failed:', error)
+        closeSuggestions()
+      }
+    }, 250)
+  })
+
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      closeSuggestions()
+    }
+  })
+
+  document.addEventListener('click', event => {
+    const target = event.target as Node
+
+    if (!input.contains(target) && !suggestionsBox.contains(target)) {
+      closeSuggestions()
+    }
+  })
+}
 
 // ─── Weather fetch ────────────────────────────────────────────────────────────
 async function loadWeather() {
   if (isWeatherLoading) return
   isWeatherLoading = true
 
-  _setPanel(buildLoadingPanel(selectedPlace), true, () =>
-    bindSearch((value: string) => { selectedPlace = value; isWeatherLoading = false; loadWeather() })
-  )
+  _setPanel(buildLoadingPanel(selectedPlace), true, bindPanelAutocompleteSearch)
 
   try {
     const weather = await getCurrentWeather(selectedPlace)
@@ -335,11 +467,13 @@ async function loadWeather() {
     applySeaStateToWater(water, seaState, scene)
     windGroup.rotation.y = -THREE.MathUtils.degToRad(weather.windDirection)
 
-    setTimeout(() => _setPanel(buildWeatherPanel(weather, seaState, phase, getLocalTimeStr), false, bindPanelSearch), 260)
+    compassHud.innerHTML = buildCompassHud(weather)
+
+    setTimeout(() => _setPanel(buildWeatherPanel(weather, seaState, phase, getLocalTimeStr), false, bindPanelAutocompleteSearch), 260)
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error))
     console.error(err)
-    setTimeout(() => _setPanel(buildErrorPanel(selectedPlace, err.message), false, bindPanelSearch), 260)
+    setTimeout(() => _setPanel(buildErrorPanel(selectedPlace, err.message), false, bindPanelAutocompleteSearch), 260)
   } finally {
     setTimeout(() => { weatherBox.classList.remove('is-loading'); isWeatherLoading = false }, 520)
   }
