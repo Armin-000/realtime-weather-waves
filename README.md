@@ -1,4 +1,4 @@
-````md id="q1n7km"
+
 <div align="center">
 
 <img src="public/github.svg" width="160" />
@@ -254,6 +254,3 @@ or use in paid products or services is prohibited
 without explicit written permission from the author.
 
 © 2026 Armin Lišić
-
-```
-```
