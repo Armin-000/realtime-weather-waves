@@ -114,7 +114,7 @@ export async function getCurrentWeather(query = 'Rijeka') {
 
   const res = await fetch(
     `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}` +
-    `&current=temperature_2m,wind_speed_10m,wind_direction_10m,is_day,weather_code,precipitation,rain,showers` +
+    `&current=temperature_2m,wind_speed_10m,wind_direction_10m,is_day,weather_code,precipitation,rain,showers,cloud_cover` +
     `&daily=sunrise,sunset&wind_speed_unit=kmh&timezone=auto`
   )
 
@@ -175,6 +175,7 @@ export async function getCurrentWeather(query = 'Rijeka') {
     precipitationTotal,
     precipitationIntensity,
     isRaining,
+    cloudCover: Number(cur.cloud_cover ?? 0),
 
     waveHeight: waveKey('wave_height'),
     waveDirection: waveKey('wave_direction'),

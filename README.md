@@ -38,9 +38,15 @@
 
 ---
 
-## Overview
+# Overview
 
-Oceanis is a cinematic real-time ocean and atmosphere simulation built with Three.js, WebGL and TypeScript.
+Oceanis is a cinematic real-time ocean and atmosphere simulation built with:
+
+- Three.js
+- TypeScript
+- WebGL
+- GLSL shaders
+- Open-Meteo APIs
 
 The project combines:
 
@@ -48,6 +54,7 @@ The project combines:
 - marine conditions
 - GPU accelerated rendering
 - procedural ocean animation
+- cinematic sky rendering
 - atmospheric environmental systems
 
 to create an immersive real-time ocean experience.
@@ -56,28 +63,29 @@ Oceanis is intentionally designed as an atmospheric visualization engine rather 
 
 ---
 
-## Features
+# Features
 
 - Real-time weather integration
 - Real-time marine simulation
 - GPU accelerated ocean rendering
 - Procedural cinematic waves
-- Dynamic storm atmosphere
-- Real-time rain system
-- Cinematic cloud rendering
 - Infinite ocean illusion
 - Infinite horizon system
-- Dynamic day and night transitions
+- Dynamic storm atmosphere
+- Real-time rain simulation
+- Realistic cinematic cloud rendering
+- Dynamic sky mood transitions
 - Procedural night sky
+- Dynamic day and night cycle
+- Weather-reactive atmosphere
 - Floating cinematic compass HUD
 - Smart location autocomplete
 - Glassmorphism environmental UI
-- Atmospheric fog and lighting
 - Modular TypeScript architecture
 
 ---
 
-## APIs
+# APIs
 
 Oceanis uses live Open-Meteo APIs:
 
@@ -93,35 +101,36 @@ Oceanis uses live Open-Meteo APIs:
 
 ---
 
-## Environmental Systems
+# Environmental Systems
 
 Oceanis dynamically reacts to:
 
 - wind speed
 - wind direction
 - wave height
-- storm intensity
 - precipitation
+- storm intensity
 - cloud cover
 - sunrise and sunset
-- marine conditions
 - atmospheric visibility
+- marine conditions
 
 The environment continuously adapts in real time using live Open-Meteo APIs.
 
 ---
 
-## Rendering Pipeline
+# Rendering Pipeline
 
 Oceanis combines:
 
 - GPU wave deformation
 - procedural ocean animation
 - cinematic sky rendering
+- realistic layered clouds
 - dynamic storm atmosphere
 - weather-reactive lighting
-- procedural clouds
 - rain particle simulation
+- procedural horizon haze
 - atmospheric fog
 - infinite environment illusion
 
@@ -129,7 +138,7 @@ The rendering pipeline is optimized for cinematic immersion while maintaining re
 
 ---
 
-## Technologies
+# Technologies
 
 <div align="center">
 
@@ -146,14 +155,14 @@ The rendering pipeline is optimized for cinematic immersion while maintaining re
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```txt
 src/
 ├── environment/
-│   ├── CloudLayer.ts
 │   ├── HorizonSilhouettes.ts
 │   ├── RainSystem.ts
+│   ├── RealisticSky.ts
 │   └── StormAtmosphere.ts
 │
 ├── panel/
@@ -171,32 +180,32 @@ src/
 
 ---
 
-## Installation
+# Installation
 
-```bash id="7vxqmi"
+```bash
 npm install
 npm run dev
 ```
 
 ---
 
-## Build
+# Build
 
-```bash id="qj91y0"
+```bash
 npm run build
 ```
 
 ---
 
-## Preview Production Build
+# Preview Production Build
 
-```bash id="khnk6v"
+```bash
 npm run preview
 ```
 
 ---
 
-## Recommended Test Locations
+# Recommended Test Locations
 
 <div align="center">
 
@@ -212,20 +221,19 @@ npm run preview
 
 ---
 
-## Future Improvements
+# Future Improvements
 
-### Visual
+## Visual
 
 * lightning simulation
 * volumetric clouds
 * realistic ocean foam
-* spray particles
 * SSR reflections
 * cinematic bloom
 * underwater rendering
 * atmospheric haze
 
-### Physics
+## Physics
 
 * Gerstner waves
 * FFT ocean simulation
@@ -233,19 +241,18 @@ npm run preview
 * dynamic wakes
 * WebGPU compute shaders
 
-### UI
+## UI
 
 * marine radar
 * tide system
 * swell graphs
 * weather icons
-* historical weather playback
 * cinematic minimap
 * fullscreen immersive mode
 
 ---
 
-## License
+# License
 
 Oceanis is protected under a custom non-commercial license.
 

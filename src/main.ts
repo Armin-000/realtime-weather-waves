@@ -7,8 +7,10 @@ import { getCurrentWeather, searchPlaces } from './weather/weatherService'
 import { mapWeatherToSeaState, applySeaStateToWater } from './water/weatherWaves'
 import { RainSystem } from './environment/RainSystem'
 import { StormAtmosphere } from './environment/StormAtmosphere'
-import { CloudLayer } from './environment/CloudLayer'
+
 import { HorizonSilhouettes } from './environment/HorizonSilhouettes'
+
+import { RealisticSky } from './environment/RealisticSky'
 
 import {
   buildWeatherPanel,
@@ -105,7 +107,7 @@ const water = new Water(new THREE.PlaneGeometry(6000, 6000, 520, 520), {
   sunColor: 0xd8ecff,
   waterColor: 0x00324d,
   distortionScale: 3.7,
-  fog: true
+  fog: false
 })
 
 water.rotation.x = -Math.PI / 2
@@ -386,8 +388,7 @@ scene.add(rainSystem.group)
 
 const stormAtmosphere = new StormAtmosphere(scene, renderer)
 
-const cloudLayer = new CloudLayer()
-scene.add(cloudLayer.group)
+const realisticSky = new RealisticSky(scene, camera)
 
 const horizonSilhouettes = new HorizonSilhouettes()
 scene.add(horizonSilhouettes.group)
@@ -563,7 +564,6 @@ function applyDayPhase(phase: DayPhase, weather: WeatherData | null) {
   starMat.opacity = phase === 'night' ? 0.95 : 0.55
   starMat.size = phase === 'night' ? 1.25 : 0.85
 
-  cloudLayer.setPhaseMood(phase)
   horizonSilhouettes.setPhaseMood(phase)
 }
 
@@ -772,6 +772,7 @@ async function loadWeather() {
       isRaining: weather.isRaining,
       precipitationIntensity: weather.precipitationIntensity,
       stormIntensity: seaState.stormIntensity,
+      cloudCover: weather.cloudCover,
       weatherCode: weather.weatherCode,
       isDay: weather.isDay
     })
@@ -781,8 +782,15 @@ async function loadWeather() {
       seaState.stormIntensity ?? 0
     )
 
-    cloudLayer.setStormAmount(atmosphereAmount)
     horizonSilhouettes.setStormAmount(atmosphereAmount)
+
+    realisticSky.setMood({
+      phase,
+      cloudCover: weather.cloudCover,
+      precipitationIntensity: weather.precipitationIntensity,
+      stormIntensity: seaState.stormIntensity,
+      isRaining: weather.isRaining
+    })
 
     compassHud.innerHTML = buildCompassHud(weather)
 
@@ -891,9 +899,8 @@ function animate() {
 
   updateInfiniteOcean()
 
-  cloudLayer.update(delta, currentWeatherData?.windSpeed ?? 0)
+  realisticSky.update(delta, currentWeatherData?.windSpeed ?? 0)
 
-  cloudLayer.group.position.copy(camera.position)
   const horizonDistance = 1800
 
   horizonSilhouettes.group.position.set(
