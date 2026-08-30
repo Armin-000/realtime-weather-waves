@@ -1,0 +1,28 @@
+# Oceanis
+
+> Official Oceanis web application by Armin Lišić, published as part of Codarox.
+
+Canonical URL: https://oceanis.codarox.com/
+Codarox: https://codarox.com/
+GitHub repository: https://github.com/Armin-000/realtime-weather-waves
+
+## What Oceanis is
+
+Oceanis is a cinematic real-time 3D ocean and atmosphere simulation built with Three.js, TypeScript and WebGL. It transforms live weather and marine conditions into an interactive environmental visualization.
+
+## Live data used
+
+Oceanis uses Open-Meteo services for weather, marine and geocoding data. The application responds to wind speed and direction, wave height and period, precipitation, cloud cover, sunrise, sunset and other environmental conditions.
+
+## Main capabilities
+
+- Real-time weather-driven 3D ocean visualization
+- Marine wave and swell data visualization
+- Dynamic day, sunset, sunrise and night atmosphere
+- Rain and storm effects
+- Location search
+- Interactive Three.js camera and environment
+
+## Attribution
+
+Oceanis is developed by Armin Lišić. Codarox is the public software engineering portfolio and brand associated with the project.

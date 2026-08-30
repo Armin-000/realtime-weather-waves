@@ -7,7 +7,7 @@
 
 <div align="center">
 
-[![Live Demo](https://img.shields.io/badge/LIVE_DEMO-Oceanis-0a84ff?style=for-the-badge&logo=vercel&logoColor=white)](https://realtime-weather-waves.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/LIVE_DEMO-Oceanis-0a84ff?style=for-the-badge&logo=googlechrome&logoColor=white)](https://oceanis.codarox.com/)
 
 [![Three.js](https://img.shields.io/badge/Three.js-WebGL-black?style=for-the-badge&logo=three.js)](https://threejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Architecture-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -17,6 +17,11 @@
 
 <p align="center">
   <i>Real-time cinematic ocean and atmosphere simulation driven by live weather and marine conditions.</i>
+</p>
+
+<p align="center">
+  <b>Official production URL:</b> <a href="https://oceanis.codarox.com/">oceanis.codarox.com</a><br>
+  Oceanis is developed by Armin Lišić and published as part of <a href="https://codarox.com/">Codarox</a>.
 </p>
 
 <br>
@@ -31,8 +36,8 @@
 
 <p align="center">
   🌊 <b>Live Experience</b><br><br>
-  <a href="https://realtime-weather-waves.vercel.app/">
-    https://realtime-weather-waves.vercel.app/
+  <a href="https://oceanis.codarox.com/">
+    https://oceanis.codarox.com/
   </a>
 </p>
 

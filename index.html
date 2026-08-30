@@ -5,7 +5,102 @@
 
     <!-- Primary Meta -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Oceanis</title>
+    <title>Oceanis — Live Weather &amp; Ocean Simulation | Codarox</title>
+    <meta
+      name="description"
+      content="Oceanis is a real-time 3D ocean and atmosphere simulation that transforms live weather, wind and marine data into an interactive Three.js experience."
+    />
+    <meta name="author" content="Armin Lišić" />
+    <meta name="application-name" content="Oceanis" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <link rel="canonical" href="https://oceanis.codarox.com/" />
+
+    <!-- Search / Social Discovery -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Oceanis" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://oceanis.codarox.com/" />
+    <meta property="og:title" content="Oceanis — Live Weather &amp; Ocean Simulation" />
+    <meta
+      property="og:description"
+      content="Explore a cinematic real-time 3D ocean driven by live weather, wind and marine conditions."
+    />
+    <meta property="og:image" content="https://oceanis.codarox.com/day.png" />
+    <meta property="og:image:alt" content="Oceanis real-time 3D ocean and atmosphere simulation" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Oceanis — Live Weather &amp; Ocean Simulation" />
+    <meta
+      name="twitter:description"
+      content="A cinematic real-time 3D ocean visualization powered by live weather and marine data."
+    />
+    <meta name="twitter:image" content="https://oceanis.codarox.com/day.png" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://oceanis.codarox.com/#website",
+            "url": "https://oceanis.codarox.com/",
+            "name": "Oceanis",
+            "alternateName": [
+              "Oceanis by Codarox",
+              "Oceanis by Armin Lišić",
+              "oceanis.codarox.com"
+            ],
+            "description": "Real-time 3D ocean and atmosphere simulation driven by live weather and marine conditions.",
+            "inLanguage": "en"
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://oceanis.codarox.com/#webpage",
+            "url": "https://oceanis.codarox.com/",
+            "name": "Oceanis — Live Weather & Ocean Simulation",
+            "isPartOf": { "@id": "https://oceanis.codarox.com/#website" },
+            "about": { "@id": "https://oceanis.codarox.com/#app" },
+            "primaryImageOfPage": "https://oceanis.codarox.com/day.png",
+            "inLanguage": "en"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://oceanis.codarox.com/#app",
+            "name": "Oceanis",
+            "url": "https://oceanis.codarox.com/",
+            "description": "Interactive Three.js ocean and atmosphere visualization using live weather, wind, precipitation and marine wave data.",
+            "applicationCategory": "WeatherApplication",
+            "operatingSystem": "Any modern web browser",
+            "isAccessibleForFree": true,
+            "image": "https://oceanis.codarox.com/day.png",
+            "brand": {
+              "@type": "Brand",
+              "name": "Codarox",
+              "url": "https://codarox.com/"
+            },
+            "author": {
+              "@type": "Person",
+              "name": "Armin Lišić",
+              "alternateName": "Armin Lisic",
+              "url": "https://codarox.com/",
+              "sameAs": [
+                "https://github.com/Armin-000",
+                "https://github.com/Armin-000/realtime-weather-waves"
+              ]
+            },
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "EUR"
+            }
+          }
+        ]
+      }
+    </script>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -49,6 +144,20 @@
         OCEANIS
       </div>
     </div>
+
+    <noscript>
+      <main>
+        <h1>Oceanis — Live Weather &amp; Ocean Simulation</h1>
+        <p>
+          Oceanis is an interactive 3D ocean and atmosphere experience powered by live weather,
+          wind and marine wave data. JavaScript is required to run the real-time visualization.
+        </p>
+        <p>
+          Developed by Armin Lišić as part of
+          <a href="https://codarox.com/">Codarox</a>.
+        </p>
+      </main>
+    </noscript>
 
     <div id="app"></div>
 

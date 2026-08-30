@@ -1,5 +1,5 @@
 {
-  "name": "Oceanis",
+  "name": "Oceanis — Live Weather & Ocean Simulation",
   "short_name": "Oceanis",
   "icons": [
     {
@@ -15,7 +15,11 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "theme_color": "#06131f",
+  "background_color": "#06131f",
+  "display": "standalone",
+  "description": "Real-time 3D ocean and atmosphere simulation driven by live weather and marine conditions.",
+  "start_url": "/",
+  "scope": "/",
+  "lang": "en"
 }
