@@ -26,11 +26,11 @@
 
 <br>
 
-<img src="public/day.gif" width="30%" />
+<img src="docs/screenshots/day.webp" width="30%" />
 &nbsp;&nbsp;
-<img src="public/Sunrise.gif" width="30%" />
+<img src="docs/screenshots/sunrise.webp" width="30%" />
 &nbsp;&nbsp;
-<img src="public/night.gif" width="30%" />
+<img src="docs/screenshots/night.webp" width="30%" />
 
 </div>
 
@@ -199,6 +199,8 @@ npm run dev
 ```bash
 npm run build
 ```
+
+For production, publish only the generated `dist/` directory. `node_modules` and the source tree are build-time files and should not be served as the production application. See `DEPLOYMENT.md`.
 
 ---
 

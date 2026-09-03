@@ -191,7 +191,7 @@ export class RealisticSky {
   private loadCloudTextures() {
     for (let i = 1; i <= 10; i++) {
       const index = String(i).padStart(2, '0')
-      const texture = this.textureLoader.load(`/clouds/FX_CloudAlpha${index}.png`)
+      const texture = this.textureLoader.load(`/clouds/FX_CloudAlpha${index}.webp`)
 
       texture.colorSpace = THREE.SRGBColorSpace
       texture.wrapS = THREE.ClampToEdgeWrapping
@@ -246,7 +246,7 @@ export class RealisticSky {
       mesh.rotation.z = Math.random() * Math.PI * 2
 
       mesh.renderOrder = -30
-      mesh.frustumCulled = false
+      mesh.frustumCulled = true
 
       mesh.userData = {
         baseOpacity: config.opacity,

@@ -25,6 +25,8 @@ const rainyWeatherCodes = new Set([
   95, 96, 99
 ])
 
+const geocodeCache = new Map()
+
 export function getPrecipitationIntensity({ precipitation = 0, rain = 0, showers = 0, weatherCode = null }) {
   const amount =
     Number(precipitation || 0) +
@@ -43,13 +45,14 @@ export function getPrecipitationIntensity({ precipitation = 0, rain = 0, showers
   return 1
 }
 
-export async function searchPlaces(query) {
+export async function searchPlaces(query, signal) {
   const value = query.trim()
 
   if (value.length < 1) return []
 
   const res = await fetch(
-    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(value)}&count=6&language=en&format=json`
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(value)}&count=6&language=en&format=json`,
+    { signal }
   )
 
   if (!res.ok) throw new Error('Location suggestions failed.')
@@ -68,6 +71,11 @@ export async function searchPlaces(query) {
 }
 
 export async function geocodePlace(query) {
+  const cacheKey = query.trim().toLocaleLowerCase()
+  const cached = geocodeCache.get(cacheKey)
+
+  if (cached) return cached
+
   const res = await fetch(
     `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`
   )
@@ -81,14 +89,17 @@ export async function geocodePlace(query) {
   }
 
   const { name, country, latitude, longitude, timezone } = data.results[0]
-
-  return {
+  const place = {
     name,
     country,
     latitude,
     longitude,
     timezone
   }
+
+  geocodeCache.set(cacheKey, place)
+
+  return place
 }
 
 async function getMarineData(latitude, longitude) {
@@ -112,11 +123,15 @@ async function getMarineData(latitude, longitude) {
 export async function getCurrentWeather(query = 'Rijeka') {
   const place = await geocodePlace(query)
 
-  const res = await fetch(
+  const forecastUrl =
     `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}` +
     `&current=temperature_2m,wind_speed_10m,wind_direction_10m,is_day,weather_code,precipitation,rain,showers,cloud_cover` +
     `&daily=sunrise,sunset&wind_speed_unit=kmh&timezone=auto`
-  )
+
+  const [res, marine] = await Promise.all([
+    fetch(forecastUrl),
+    getMarineData(place.latitude, place.longitude)
+  ])
 
   if (!res.ok) {
     throw new Error(`Error fetching weather forecast: ${res.status}`)
@@ -128,7 +143,6 @@ export async function getCurrentWeather(query = 'Rijeka') {
     throw new Error('API did not return expected data.')
   }
 
-  const marine = await getMarineData(place.latitude, place.longitude)
   const cur = data.current
 
   const waveKey = key => marine?.[key] ?? null

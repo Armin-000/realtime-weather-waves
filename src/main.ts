@@ -42,10 +42,12 @@ if (!app) throw new Error('App container was not found.')
 
 // ─── Renderer / Scene / Camera ───────────────────────────────────────────────
 
-const renderer = new THREE.WebGLRenderer({ antialias: true })
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
+
+const maxPixelRatio = window.matchMedia('(pointer: coarse)').matches ? 1.25 : 1.75
 
 renderer.setSize(window.innerWidth, window.innerHeight)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio))
 renderer.toneMapping = THREE.ACESFilmicToneMapping
 renderer.toneMappingExposure = 0.5
 
@@ -99,9 +101,9 @@ const waterNormals = new THREE.TextureLoader().load(
   }
 )
 
-const water = new Water(new THREE.PlaneGeometry(6000, 6000, 520, 520), {
-  textureWidth: 1024,
-  textureHeight: 1024,
+const water = new Water(new THREE.PlaneGeometry(6000, 6000, 256, 256), {
+  textureWidth: 512,
+  textureHeight: 512,
   waterNormals,
   sunDirection: new THREE.Vector3(),
   sunColor: 0xd8ecff,
@@ -226,9 +228,6 @@ function updateInfiniteOcean() {
 // ─── Lighting ────────────────────────────────────────────────────────────────
 
 const sun = new THREE.Vector3()
-const pmrem = new THREE.PMREMGenerator(renderer)
-
-let envTarget: THREE.WebGLRenderTarget | null = null
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 2)
 const moonLight = new THREE.DirectionalLight(0xc7ddff, 0)
@@ -251,9 +250,6 @@ function updateSun(elevation = 18, azimuth = 180) {
 
   dirLight.position.copy(sun).multiplyScalar(100)
 
-  envTarget?.dispose()
-  envTarget = pmrem.fromScene(sky)
-  scene.environment = envTarget.texture
 }
 
 updateSun()
@@ -467,6 +463,7 @@ let currentWeatherData: WeatherData | null = null
 let currentSeaState: SeaState | null = null
 let isWeatherLoading = false
 let selectedPlace = 'Rijeka'
+let autocompleteController: AbortController | null = null
 
 // ─── Time helpers ────────────────────────────────────────────────────────────
 
@@ -707,13 +704,18 @@ function bindPanelAutocompleteSearch() {
     debounceTimer = window.setTimeout(async () => {
       const currentRequest = ++requestId
 
+      autocompleteController?.abort()
+      autocompleteController = new AbortController()
+
       try {
-        const places = await searchPlaces(value)
+        const places = await searchPlaces(value, autocompleteController.signal)
 
         if (currentRequest !== requestId) return
 
         renderSuggestions(places)
       } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return
+
         console.warn('Autocomplete failed:', error)
         closeSuggestions()
       }
@@ -726,14 +728,22 @@ function bindPanelAutocompleteSearch() {
     }
   })
 
-  document.addEventListener('click', event => {
-    const target = event.target as Node
-
-    if (!input.contains(target) && !suggestionsBox.contains(target)) {
-      closeSuggestions()
-    }
-  })
 }
+
+// One global outside-click handler avoids adding a permanent document listener
+// every time the weather panel is re-rendered.
+document.addEventListener('click', event => {
+  const input = document.querySelector<HTMLInputElement>('#city-input')
+  const suggestionsBox = document.querySelector<HTMLDivElement>('#city-suggestions')
+  const target = event.target
+
+  if (!input || !suggestionsBox || !(target instanceof Node)) return
+
+  if (!input.contains(target) && !suggestionsBox.contains(target)) {
+    suggestionsBox.innerHTML = ''
+    suggestionsBox.classList.remove('is-visible')
+  }
+})
 
 // ─── Weather fetch ───────────────────────────────────────────────────────────
 
@@ -829,9 +839,11 @@ function animate() {
   requestAnimationFrame(animate)
 
   const now = performance.now()
-  const delta = (now - lastTime) / 1000
+  const delta = Math.min((now - lastTime) / 1000, 0.1)
 
   lastTime = now
+
+  if (document.hidden) return
 
   const t = now * 0.001
 
@@ -959,12 +971,15 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix()
 
   renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio))
 })
 
 loadWeather()
 
-window.addEventListener('load', () => {
-  setTimeout(() => {
+// Do not wait for every non-critical texture/font request before revealing the app.
+// The first rendered frame is enough to transition away from the preloader.
+requestAnimationFrame(() => {
+  window.setTimeout(() => {
     document.getElementById('preloader')?.classList.add('hidden')
-  }, 1400)
+  }, 450)
 })
